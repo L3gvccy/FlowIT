@@ -47,7 +47,6 @@ model User {
 
 model Project {
   id String @id @default(uuid())
-  code String @unique
   name String
   description String
   image String?
