@@ -1,0 +1,197 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum EmployeeRole {
+  OWNER
+  MANAGER
+  EMPLOYEE
+}
+
+enum AssignmentStatus {
+  CREATED
+  IN_PROGRESS
+  SUBMITTED
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model User {
+  id String @id @default(uuid())
+  email String @unique
+  password String
+  name String
+  surname String
+  image String?
+  isProfileCompleted Boolean @default(false)
+
+  employees Employee[]
+  userSkills UserSkill[]
+  
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Project {
+  id String @id @default(uuid())
+  code String @unique
+  name String
+  description String
+  image String?
+
+  employees Employee[]
+  tasks Task[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Task {
+  id String @id @default(uuid())
+  projectId String
+  title String
+  description String
+  complexity Int
+  deadline DateTime
+
+  taskSkills TaskSkill[]
+  attachments TaskAttachment[]
+  assignments Assignment[]
+  messages TaskMessage[]
+
+  project Project @relation(fields: [projectId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TaskAttachment {
+  id String @id @default(uuid())
+  taskId String
+  fileName String
+  fileUrl String
+
+  task Task @relation(fields: [taskId], references: [id])
+}
+
+model TaskMessage {
+  id String @id @default(uuid())
+  authorId String
+  taskId String
+  content String?
+  fileName String?
+  fileUrl String?
+
+  timestamp DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id])
+  employee Employee @relation(fields: [authorId], references: [id])
+}
+
+model Employee {
+  id String @id @default(uuid())
+  userId String
+  projectId String
+
+  role EmployeeRole
+  kpi Decimal @default(0)
+
+  assignments Assignment[]
+  messages TaskMessage[]
+
+  user User @relation(fields: [userId], references: [id])
+  project Project @relation(fields: [projectId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, projectId])
+}
+
+model Assignment {
+  id String @id @default(uuid())
+  taskId String
+  employeeId String
+  status AssignmentStatus @default(CREATED)
+  completedAt DateTime?
+
+  statusUpdates AssignmentStatusUpdate[]
+
+  task Task @relation(fields: [taskId], references: [id])
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([taskId, employeeId])
+}
+
+model AssignmentStatusUpdate {
+  id String @id @default(uuid())
+  assignmentId String
+  newStatus AssignmentStatus
+  message String?
+  timestamp DateTime @default(now())
+
+  attachments AssignmentStatusAttachment[]
+
+  assignment Assignment @relation(fields: [assignmentId], references: [id])
+}
+
+model AssignmentStatusAttachment {
+  id String @id @default(uuid())
+  statusUpdateId String
+  fileName String
+  fileUrl String
+
+  statusUpdate AssignmentStatusUpdate @relation(fields: [statusUpdateId], references: [id])
+}
+
+model Skill {
+  id String @id @default(uuid())
+  name String @unique
+
+  userSkills UserSkill[]
+  taskSkills TaskSkill[]
+
+  createdAt DateTime @default(now())
+}
+
+model UserSkill {
+  id String @id @default(uuid())
+  userId String
+  skillId String
+
+  user User @relation(fields: [userId], references: [id])
+  skill Skill @relation(fields: [skillId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, skillId])
+}
+
+model TaskSkill {
+  id String @id @default(uuid())
+  taskId String
+  skillId String
+
+  task Task @relation(fields: [taskId], references: [id])
+  skill Skill @relation(fields: [skillId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([taskId, skillId])
+}
