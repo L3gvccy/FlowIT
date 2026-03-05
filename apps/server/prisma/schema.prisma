@@ -72,7 +72,7 @@ model Task {
   assignments Assignment[]
   messages TaskMessage[]
 
-  project Project @relation(fields: [projectId], references: [id])
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -84,7 +84,7 @@ model TaskAttachment {
   fileName String
   fileUrl String
 
-  task Task @relation(fields: [taskId], references: [id])
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
 }
 
 model TaskMessage {
@@ -97,8 +97,8 @@ model TaskMessage {
 
   timestamp DateTime @default(now())
 
-  task Task @relation(fields: [taskId], references: [id])
-  employee Employee @relation(fields: [authorId], references: [id])
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
 
 model Employee {
@@ -112,8 +112,8 @@ model Employee {
   assignments Assignment[]
   messages TaskMessage[]
 
-  user User @relation(fields: [userId], references: [id])
-  project Project @relation(fields: [projectId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -130,8 +130,8 @@ model Assignment {
 
   statusUpdates AssignmentStatusUpdate[]
 
-  task Task @relation(fields: [taskId], references: [id])
-  employee Employee @relation(fields: [employeeId], references: [id])
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -148,7 +148,7 @@ model AssignmentStatusUpdate {
 
   attachments AssignmentStatusAttachment[]
 
-  assignment Assignment @relation(fields: [assignmentId], references: [id])
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
 }
 
 model AssignmentStatusAttachment {
@@ -157,7 +157,7 @@ model AssignmentStatusAttachment {
   fileName String
   fileUrl String
 
-  statusUpdate AssignmentStatusUpdate @relation(fields: [statusUpdateId], references: [id])
+  statusUpdate AssignmentStatusUpdate @relation(fields: [statusUpdateId], references: [id], onDelete: Cascade)
 }
 
 model Skill {
@@ -175,8 +175,8 @@ model UserSkill {
   userId String
   skillId String
 
-  user User @relation(fields: [userId], references: [id])
-  skill Skill @relation(fields: [skillId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 
@@ -188,8 +188,8 @@ model TaskSkill {
   taskId String
   skillId String
 
-  task Task @relation(fields: [taskId], references: [id])
-  skill Skill @relation(fields: [skillId], references: [id])
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 
