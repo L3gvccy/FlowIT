@@ -1,10 +1,36 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 const LoginForm = ({ toggleForm }: { toggleForm: () => void }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const [isButtonActive, setIsButtonActive] = useState(false);
+
+  const submitForm = () => {
+    const data = { email, password };
+    toast.success("Ви успішно авторизувались");
+  };
+
+  const validateEmail = (email: string) => {
+    const pattern = /\S+@\S+\.\S+/;
+    return pattern.test(email);
+  };
+
+  useEffect(() => {
+    if (!validateEmail(email)) {
+      setIsButtonActive(false);
+      return;
+    }
+    if (password.length < 6) {
+      setIsButtonActive(false);
+      return;
+    }
+    setIsButtonActive(true);
+  }, [email, password]);
+
   return (
     <div className="flex flex-col justify-between items-center p-4 w-full h-112">
       <p className="font-semibold text-2xl text-violet-600">Вхід</p>
@@ -45,7 +71,11 @@ const LoginForm = ({ toggleForm }: { toggleForm: () => void }) => {
           </div>
         </div>
 
-        <button className="w-full rounded-xl p-2 bg-violet-600 text-white hover:bg-violet-500 font-semibold cursor-pointer transition-all duration-300">
+        <button
+          disabled={!isButtonActive}
+          className="w-full rounded-xl p-2 bg-violet-600 text-white hover:bg-violet-500 disabled:bg-violet-900 disabled:cursor-not-allowed font-semibold cursor-pointer transition-all duration-300"
+          onClick={submitForm}
+        >
           Увійти
         </button>
       </div>

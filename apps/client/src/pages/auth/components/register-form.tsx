@@ -1,11 +1,63 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
+import { apiClient } from "@/utils/api-client";
+import { LOGIN_URL } from "@/utils/constants";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/store/userSlice";
 
 const RegisterForm = ({ toggleForm }: { toggleForm: () => void }) => {
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const [isButtonActive, setIsButtonActive] = useState(false);
+
+  const validatePassword = (): boolean => {
+    if (password !== confirmPassword) {
+      toast.error("Паролі не співпадають");
+      return false;
+    }
+
+    return true;
+  };
+
+  const submitForm = async () => {
+    if (!validatePassword()) return;
+
+    const data = { email, password };
+
+    await apiClient
+      .post(LOGIN_URL, data)
+      .then((res) => {
+        dispatch(setUser(res.data.user));
+        toast.success("Ви успішно авторизувались");
+        localStorage.setItem("accessToken", res.data.accessToken);
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+      });
+  };
+
+  const validateEmail = (email: string) => {
+    const pattern = /\S+@\S+\.\S+/;
+    return pattern.test(email);
+  };
+
+  useEffect(() => {
+    if (!validateEmail(email)) {
+      setIsButtonActive(false);
+      return;
+    }
+    if (password.length < 6 && confirmPassword.length < 6) {
+      setIsButtonActive(false);
+      return;
+    }
+    setIsButtonActive(true);
+  }, [email, password, confirmPassword]);
+
   return (
     <div className="flex flex-col justify-between items-center p-4 w-full h-112">
       <p className="font-semibold text-2xl text-violet-600">Реєстрація</p>
@@ -59,7 +111,11 @@ const RegisterForm = ({ toggleForm }: { toggleForm: () => void }) => {
           />
         </div>
 
-        <button className="w-full rounded-xl p-2 bg-violet-600 text-white hover:bg-violet-500 font-semibold cursor-pointer transition-all duration-300">
+        <button
+          disabled={!isButtonActive}
+          className="w-full rounded-xl p-2 bg-violet-600 text-white hover:bg-violet-500 disabled:bg-violet-900 disabled:cursor-not-allowed font-semibold cursor-pointer transition-all duration-300"
+          onClick={submitForm}
+        >
           Зареєструватись
         </button>
       </div>
