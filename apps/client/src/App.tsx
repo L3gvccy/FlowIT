@@ -6,7 +6,13 @@ import { apiClient } from "./utils/api-client";
 import { GET_ME_URL } from "./utils/constants";
 import { clearUser, setUser } from "./store/userSlice";
 import { type ReactNode } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 import Layout from "./pages/layout/layout";
 import Landing from "./pages/landing/landing";
 import Auth from "./pages/auth/auth";
@@ -15,15 +21,17 @@ import Projects from "./pages/project/projects";
 import ProfileSetup from "./pages/profile/profile-setup";
 
 const PrivateRoute = ({ children }: { children: ReactNode }) => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   const user = useSelector((state: RootState) => state.userReducer.user);
   const isAuthenticated = !!user?.id;
 
   if (isAuthenticated) {
-    return user.isProfileCompleted ? (
-      children
-    ) : (
-      <Navigate to="/setup-profile" />
-    );
+    if (user.isProfileCompleted) return children;
+    if (!user.isProfileCompleted && currentPath == "/profile-setup")
+      return children;
+    return <Navigate to="/profile-setup" />;
   } else {
     return <Navigate to="/auth" />;
   }
@@ -43,6 +51,7 @@ function App() {
     await apiClient
       .get(GET_ME_URL)
       .then((res) => {
+        console.log(res.data);
         dispatch(setUser(res.data.user));
       })
       .catch((err) => {

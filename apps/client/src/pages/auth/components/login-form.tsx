@@ -1,17 +1,38 @@
 import React, { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { apiClient } from "@/utils/api-client";
+import { LOGIN_URL } from "@/utils/constants";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/store/userSlice";
+import { useNavigate } from "react-router-dom";
+import type { User } from "@flowit/shared";
 
 const LoginForm = ({ toggleForm }: { toggleForm: () => void }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const [isButtonActive, setIsButtonActive] = useState(false);
 
-  const submitForm = () => {
+  const submitForm = async () => {
     const data = { email, password };
-    toast.success("Ви успішно авторизувались");
+    await apiClient
+      .post(LOGIN_URL, data)
+      .then((res) => {
+        const user: User = res.data.user;
+        dispatch(setUser(user));
+
+        navigate(user.isProfileCompleted ? "/" : "/profile-setup");
+        toast.success("Ви успішно авторизувались");
+        localStorage.setItem("accessToken", res.data.accessToken);
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+      });
   };
 
   const validateEmail = (email: string) => {

@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { apiClient } from "@/utils/api-client";
-import { LOGIN_URL } from "@/utils/constants";
+import { REGISTER_URL } from "@/utils/constants";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/userSlice";
+import type { User } from "@flowit/shared";
+import { useNavigate } from "react-router-dom";
 
 const RegisterForm = ({ toggleForm }: { toggleForm: () => void }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -30,9 +33,12 @@ const RegisterForm = ({ toggleForm }: { toggleForm: () => void }) => {
     const data = { email, password };
 
     await apiClient
-      .post(LOGIN_URL, data)
+      .post(REGISTER_URL, data)
       .then((res) => {
-        dispatch(setUser(res.data.user));
+        const user: User = res.data.user;
+        dispatch(setUser(user));
+
+        navigate(user.isProfileCompleted ? "/" : "/profile-setup");
         toast.success("Ви успішно авторизувались");
         localStorage.setItem("accessToken", res.data.accessToken);
       })
