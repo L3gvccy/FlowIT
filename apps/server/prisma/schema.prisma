@@ -162,7 +162,8 @@ model AssignmentStatusAttachment {
 
 model Skill {
   id String @id @default(uuid())
-  name String @unique
+  name String
+  normalizedName String @unique
 
   userSkills UserSkill[]
   taskSkills TaskSkill[]

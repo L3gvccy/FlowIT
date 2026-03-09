@@ -4,6 +4,10 @@ export default function useDebounce(value: string, delay: number = 0.3) {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
+    if (value === "") {
+      setDebouncedValue("");
+      return;
+    }
     const timeout = setTimeout(() => {
       setDebouncedValue(value);
     }, delay);
