@@ -6,7 +6,13 @@ import useDebounce from "@/hooks/debounce";
 import { apiClient } from "@/utils/api-client";
 import { SEARCH_SKILLS_URL } from "@/utils/constants";
 
-const SkillSearch = ({ onSelect }: { onSelect: (name: string) => void }) => {
+const SkillSearch = ({
+  onSelect,
+  skillsToFilter = [],
+}: {
+  onSelect: (name: string) => void;
+  skillsToFilter?: any[];
+}) => {
   const [search, setSearch] = useState("");
   const [showOptions, setShowOptions] = useState(false);
   const [skills, setSkills] = useState([]);
@@ -18,8 +24,11 @@ const SkillSearch = ({ onSelect }: { onSelect: (name: string) => void }) => {
     await apiClient
       .post(SEARCH_SKILLS_URL, { query })
       .then((res) => {
-        console.log(res.data);
-        setSkills(res.data.skills);
+        const skills = res.data.skills.filter(
+          (skill: any) =>
+            !skillsToFilter.some((filter: any) => skill.id === filter.id),
+        );
+        setSkills(skills);
       })
       .finally(() => {
         setPending(false);
@@ -70,6 +79,7 @@ const SkillSearch = ({ onSelect }: { onSelect: (name: string) => void }) => {
               ) : skills.length > 0 ? (
                 skills.map((s: any) => (
                   <SkillOption
+                    key={s.id}
                     id={s.id}
                     name={s.name}
                     onClick={() => {

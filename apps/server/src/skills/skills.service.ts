@@ -80,10 +80,11 @@ export class SkillsService {
   }
 
   async getUserSkills(userId: string) {
-    const skills = await this.prisma.userSkill.findMany({
+    const userSkills = await this.prisma.userSkill.findMany({
       where: { userId },
       include: { skill: true },
     });
+    const skills = userSkills.map((s) => s.skill);
 
     return { skills };
   }

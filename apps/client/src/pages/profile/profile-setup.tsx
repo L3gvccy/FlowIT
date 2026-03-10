@@ -174,25 +174,22 @@ const ProfileSetup = ({ type = "setup" }: ProfileSetupProps) => {
           <p className="text-lg text-center font-semibold">Навички</p>
           <div className="flex justify-center">
             <div className="w-full max-w-125">
-              <SkillSearch onSelect={addUserSkill} />
+              <SkillSearch onSelect={addUserSkill} skillsToFilter={skills} />
             </div>
           </div>
         </div>
         <div className="flex gap-2">
           {skills?.length > 0 ? (
-            skills.map((s: any) => {
-              s = s.skill;
-              return (
-                <SkillLabel
-                  id={s.id}
-                  name={s.name}
-                  editable={true}
-                  onRemove={() => {
-                    removeUserSkill(s.name);
-                  }}
-                />
-              );
-            })
+            skills.map((s: any) => (
+              <SkillLabel
+                id={s.id}
+                name={s.name}
+                editable={true}
+                onRemove={() => {
+                  removeUserSkill(s.name);
+                }}
+              />
+            ))
           ) : (
             <p>Ще немає жодної навички</p>
           )}
