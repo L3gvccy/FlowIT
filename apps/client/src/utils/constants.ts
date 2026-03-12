@@ -16,3 +16,10 @@ export const SKILLS_URL = `${API_URL}/skills`;
 export const SEARCH_SKILLS_URL = `${SKILLS_URL}/search-skills`;
 export const ADD_USER_SKILL_URL = `${SKILLS_URL}/add-user-skill`;
 export const REMOVE_USER_SKILL_URL = `${SKILLS_URL}/remove-user-skill`;
+
+export const PROJECT_URL = `${API_URL}/project`;
+export const GET_MY_PROJECTS_URL = `${PROJECT_URL}/get-my-projects`;
+export const CREATE_PROJECT_URL = `${PROJECT_URL}/create`;
+
+export const FILES_URL = `${API_URL}/files`;
+export const UPLOAD_FILE_URL = `${FILES_URL}/upload`;

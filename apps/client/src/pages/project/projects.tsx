@@ -1,4 +1,5 @@
 import React from "react";
+import CreateProject from "./components/create-project";
 
 const Projects = () => {
   return (
@@ -9,6 +10,8 @@ const Projects = () => {
             Проекти
           </p>
         </div>
+
+        <CreateProject />
       </div>
     </div>
   );

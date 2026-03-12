@@ -28,6 +28,7 @@ const Profile = () => {
   const [editable, setEditable] = useState(false);
   const [skills, setSkills] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [employees, setEmployees] = useState([]);
 
   const [editingSkills, setEditingSkills] = useState(false);
 
@@ -38,7 +39,8 @@ const Profile = () => {
       setEditable(res.data.editable);
       setUser(res.data.user);
       setSkills(res.data.skills);
-      setProjects(res.data.projects);
+      setProjects(res.data.projects.projects);
+      setEmployees(res.data.projects.employees);
     });
   };
 

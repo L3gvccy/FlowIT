@@ -1,6 +1,7 @@
 import { UpdateProfileDto } from "@flowit/shared";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
+import { ProjectService } from "src/project/project.service";
 import { SkillsService } from "src/skills/skills.service";
 
 @Injectable()
@@ -8,6 +9,7 @@ export class UserService {
   constructor(
     private prisma: PrismaService,
     private skillsService: SkillsService,
+    private projectService: ProjectService,
   ) {}
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {
@@ -35,13 +37,7 @@ export class UserService {
 
     const skills = (await this.skillsService.getUserSkills(userId)).skills;
 
-    const userEmployees = await this.prisma.employee.findMany({
-      where: { userId: userId },
-    });
-    const projectIds = userEmployees.map((e) => e.projectId);
-    const projects = await this.prisma.project.findMany({
-      where: { id: { in: projectIds } },
-    });
+    const projects = await this.projectService.getMyProjects(userId);
 
     return { user, skills, projects, editable };
   }

@@ -1,9 +1,139 @@
-import React from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { apiClient } from "@/utils/api-client";
+import { UPLOAD_FILE_URL } from "@/utils/constants";
+import type { CreateProjectDto } from "@flowit/shared";
+import { Plus } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const CreateProject = () => {
+  const [open, setOpen] = useState(false);
+
+  const [file, setFile] = useState<File | null>(null);
+  const [fileUrl, setFileUrl] = useState("");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+
+  const [uploading, setUploading] = useState(false);
+  const [creating, setCreating] = useState(false);
+
+  const uploadFile = async () => {
+    setUploading(true);
+    await apiClient
+      .post(
+        UPLOAD_FILE_URL,
+        { file },
+        { headers: { "Content-Type": "multipart/form-data" } },
+      )
+      .then((res) => {
+        setFileUrl(res.data.url);
+        toast.success("Файл завантажено");
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error(err.response.data.message);
+      })
+      .finally(() => {
+        setUploading(false);
+      });
+  };
+
+  const createProject = async () => {
+    setCreating(true);
+    const data: CreateProjectDto = { name, description, image: fileUrl };
+  };
+
+  useEffect(() => {
+    if (!file) return;
+
+    console.log(file);
+    uploadFile();
+  }, [file]);
+
   return (
     <>
-      <button></button>
+      <button
+        className="flex w-fit gap-2 py-2 px-4 rounded-xl bg-violet-600 text-white hover:bg-violet-500 font-semibold cursor-pointer transition-all duration-300"
+        onClick={() => {
+          setOpen(true);
+        }}
+      >
+        <Plus />
+        <p>Новий проект</p>
+      </button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Новий проект</DialogTitle>
+            <DialogDescription>Створення нового проекту</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1 w-full">
+              <p className="px-2">
+                Логотип{" "}
+                {uploading && (
+                  <span className="text-sm">(Завантаження...)</span>
+                )}
+              </p>
+              <input
+                type="file"
+                accept=".png,.jpg,.jpeg"
+                className="border-0 outline-0 bg-zinc-100 rounded-xl p-2"
+                placeholder="example@gmail.com"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setFile(e.target.files[0]);
+                    return;
+                  }
+                  setFile(null);
+                }}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1 w-full">
+              <p className="px-2">Назва</p>
+              <input
+                type="text"
+                className="border-0 outline-0 w-full bg-zinc-100 rounded-xl p-2"
+                placeholder="ProjectTitle"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                }}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1 w-full">
+              <p className="px-2">Опис</p>
+              <textarea
+                className="border-0 outline-0 w-full bg-zinc-100 rounded-xl p-2"
+                name="description"
+                id="description"
+                maxLength={250}
+                placeholder="Project description..."
+                rows={6}
+                value={description}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                }}
+              ></textarea>
+            </div>
+
+            <button
+              className="w-full rounded-xl p-2 bg-violet-600 text-white hover:bg-violet-500 disabled:bg-violet-900 disabled:cursor-not-allowed font-semibold cursor-pointer transition-all duration-300"
+              onClick={createProject}
+            >
+              {creating ? "Створення..." : "Створити"}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

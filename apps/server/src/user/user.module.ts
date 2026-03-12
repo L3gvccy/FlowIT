@@ -3,9 +3,10 @@ import { UserService } from "./user.service";
 import { UserController } from "./user.controller";
 import { PrismaService } from "src/prisma/prisma.service";
 import { SkillsService } from "src/skills/skills.service";
+import { ProjectService } from "src/project/project.service";
 
 @Module({
   controllers: [UserController],
-  providers: [UserService, PrismaService, SkillsService],
+  providers: [UserService, PrismaService, SkillsService, ProjectService],
 })
 export class UserModule {}
