@@ -97,6 +97,14 @@ function App() {
             }
           />
           <Route
+            path="/profile-edit"
+            element={
+              <PrivateRoute>
+                <ProfileSetup type="edit" />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/projects"
             element={
               <PrivateRoute>

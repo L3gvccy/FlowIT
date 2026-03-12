@@ -11,7 +11,7 @@ const SkillLabel = ({ id, name, editable, onRemove }: SkillLabelProps) => {
   return (
     <div
       key={id}
-      className="flex items-center gap-2 p-2 bg-violet-600 border-2 border-violet-500 text-white rounded-xl"
+      className="flex items-center gap-2 px-2 py-1 bg-violet-600 border-2 border-violet-500 text-white rounded-xl"
     >
       <p>{name}</p>
       {editable && (

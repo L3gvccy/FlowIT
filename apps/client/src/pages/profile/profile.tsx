@@ -1,4 +1,5 @@
 import SkillLabel from "@/components/skill/skill-label";
+import SkillSearch from "@/components/skill/skill-search";
 import UserAvatar from "@/components/user-avatar";
 import { apiClient } from "@/utils/api-client";
 import {
@@ -103,6 +104,9 @@ const Profile = () => {
               {editable ? (
                 <UserPen
                   className="opacity-65 hover:opacity-80 transition-all duration-300 cursor-pointer"
+                  onClick={() => {
+                    navigate("/profile-edit");
+                  }}
                   size={22}
                 />
               ) : (
@@ -149,21 +153,28 @@ const Profile = () => {
           </div>
 
           <div className="flex">
-            {skills.length === 0 ? (
+            {skills.length === 0 && !editingSkills ? (
               <p>Ще немає навичок</p>
             ) : editingSkills ? (
-              <div></div>
+              <div className="flex flex-col gap-3 w-full max-w-120">
+                <SkillSearch onSelect={addUserSkill} skillsToFilter={skills} />
+                <div className="flex gap-2">
+                  {skills.map((s: any) => (
+                    <SkillLabel
+                      id={s.id}
+                      name={s.name}
+                      editable={true}
+                      onRemove={() => {
+                        removeUserSkill(s.name);
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
             ) : (
               <div className="flex gap-2">
                 {skills.map((s: any) => (
-                  <SkillLabel
-                    id={s.id}
-                    name={s.name}
-                    editable={false}
-                    onRemove={() => {
-                      removeUserSkill(s.name);
-                    }}
-                  />
+                  <SkillLabel id={s.id} name={s.name} editable={false} />
                 ))}
               </div>
             )}

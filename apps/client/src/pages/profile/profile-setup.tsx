@@ -1,3 +1,4 @@
+import Loader from "@/components/loader";
 import SkillLabel from "@/components/skill/skill-label";
 import SkillSearch from "@/components/skill/skill-search";
 import UserAvatar from "@/components/user-avatar";
@@ -32,6 +33,8 @@ const ProfileSetup = ({ type = "setup" }: ProfileSetupProps) => {
   const [surname, setSurname] = useState("");
   const [skills, setSkills] = useState<any[]>([]);
 
+  const [loading, setLoading] = useState(true);
+
   const isEmpty = () => {
     if (name === "" || surname === "") return true;
     return false;
@@ -39,10 +42,17 @@ const ProfileSetup = ({ type = "setup" }: ProfileSetupProps) => {
 
   const getProfile = async () => {
     if (!user?.id) return;
-    await apiClient.get(GET_PROFILE_URL(user.id)).then((res) => {
-      setSkills(res.data.skills);
-      console.log(res.data);
-    });
+    await apiClient
+      .get(GET_PROFILE_URL(user.id))
+      .then((res) => {
+        setName(res.data.user.name);
+        setSurname(res.data.user.surname);
+        setSkills(res.data.skills);
+        console.log(res.data);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   const submit = async () => {
@@ -99,12 +109,20 @@ const ProfileSetup = ({ type = "setup" }: ProfileSetupProps) => {
   };
 
   useEffect(() => {
-    if (user?.isProfileCompleted) {
+    if (user?.isProfileCompleted && !user.name && !user.surname) {
       navigate(`/profile/${user.id}`);
       return;
     }
     getProfile();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex flex-1 w-full justify-center items-center">
+        <Loader size={24} />
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center p-8">
@@ -170,30 +188,37 @@ const ProfileSetup = ({ type = "setup" }: ProfileSetupProps) => {
           </div>
         </div>
 
-        <div className="flex flex-col w-full gap-3">
-          <p className="text-lg text-center font-semibold">Навички</p>
-          <div className="flex justify-center">
-            <div className="w-full max-w-125">
-              <SkillSearch onSelect={addUserSkill} skillsToFilter={skills} />
+        {type === "setup" && (
+          <>
+            <div className="flex flex-col w-full gap-3">
+              <p className="text-lg text-center font-semibold">Навички</p>
+              <div className="flex justify-center">
+                <div className="w-full max-w-125">
+                  <SkillSearch
+                    onSelect={addUserSkill}
+                    skillsToFilter={skills}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          {skills?.length > 0 ? (
-            skills.map((s: any) => (
-              <SkillLabel
-                id={s.id}
-                name={s.name}
-                editable={true}
-                onRemove={() => {
-                  removeUserSkill(s.name);
-                }}
-              />
-            ))
-          ) : (
-            <p>Ще немає жодної навички</p>
-          )}
-        </div>
+            <div className="flex gap-2">
+              {skills?.length > 0 ? (
+                skills.map((s: any) => (
+                  <SkillLabel
+                    id={s.id}
+                    name={s.name}
+                    editable={true}
+                    onRemove={() => {
+                      removeUserSkill(s.name);
+                    }}
+                  />
+                ))
+              ) : (
+                <p>Ще немає жодної навички</p>
+              )}
+            </div>
+          </>
+        )}
 
         <button
           disabled={!name || !surname}
