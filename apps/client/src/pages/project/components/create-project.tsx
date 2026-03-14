@@ -6,13 +6,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { apiClient } from "@/utils/api-client";
-import { UPLOAD_FILE_URL } from "@/utils/constants";
+import { CREATE_PROJECT_URL, UPLOAD_FILE_URL } from "@/utils/constants";
 import type { CreateProjectDto } from "@flowit/shared";
 import { Plus } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const CreateProject = () => {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   const [file, setFile] = useState<File | null>(null);
@@ -47,6 +49,21 @@ const CreateProject = () => {
   const createProject = async () => {
     setCreating(true);
     const data: CreateProjectDto = { name, description, image: fileUrl };
+
+    await apiClient
+      .post(CREATE_PROJECT_URL, data)
+      .then((res) => {
+        const project = res.data.project;
+        navigate(`/projects/${project.id}`);
+        toast.success("Проект успішно створено!");
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error(err.response.data.message);
+      })
+      .finally(() => {
+        setCreating(false);
+      });
   };
 
   useEffect(() => {
@@ -55,6 +72,10 @@ const CreateProject = () => {
     console.log(file);
     uploadFile();
   }, [file]);
+
+  useEffect(() => {
+    setFile(null);
+  }, [open]);
 
   return (
     <>
@@ -127,6 +148,7 @@ const CreateProject = () => {
 
             <button
               className="w-full rounded-xl p-2 bg-violet-600 text-white hover:bg-violet-500 disabled:bg-violet-900 disabled:cursor-not-allowed font-semibold cursor-pointer transition-all duration-300"
+              disabled={!name || !description || creating || uploading}
               onClick={createProject}
             >
               {creating ? "Створення..." : "Створити"}

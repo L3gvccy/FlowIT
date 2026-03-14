@@ -6,3 +6,6 @@ export * from "./dto/create-project.dto";
 
 export * from "./types/user";
 export * from "./types/user-profile";
+export * from "./types/employee-role";
+export * from "./types/employee";
+export * from "./types/project";

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
 import { ProjectService } from "./project.service";
 import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 import { CurrentUser } from "src/common/decorators/current-user.decorator";
@@ -21,5 +21,14 @@ export class ProjectController {
     @CurrentUser() currentUser: { id: string },
   ) {
     return await this.projectService.createProject(currentUser.id, dto);
+  }
+
+  @Get("get/:projectId")
+  @UseGuards(JwtAuthGuard)
+  async getProject(
+    @CurrentUser() currentUser: { id: string },
+    @Param("projectId") projectId: string,
+  ) {
+    return await this.projectService.getProject(currentUser.id, projectId);
   }
 }

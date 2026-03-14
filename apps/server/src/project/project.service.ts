@@ -30,4 +30,15 @@ export class ProjectService {
 
     return { project, employee };
   }
+
+  async getProject(userId: string, projectId: string) {
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+    });
+    const employee = await this.prisma.employee.findUnique({
+      where: { userId_projectId: { userId, projectId } },
+    });
+
+    return { project, employee };
+  }
 }

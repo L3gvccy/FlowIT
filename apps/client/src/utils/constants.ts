@@ -20,6 +20,8 @@ export const REMOVE_USER_SKILL_URL = `${SKILLS_URL}/remove-user-skill`;
 export const PROJECT_URL = `${API_URL}/project`;
 export const GET_MY_PROJECTS_URL = `${PROJECT_URL}/get-my-projects`;
 export const CREATE_PROJECT_URL = `${PROJECT_URL}/create`;
+export const GET_PROJECT_URL = (projectId: string) =>
+  `${PROJECT_URL}/get/${projectId}`;
 
 export const FILES_URL = `${API_URL}/files`;
 export const UPLOAD_FILE_URL = `${FILES_URL}/upload`;

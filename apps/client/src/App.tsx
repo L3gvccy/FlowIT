@@ -19,6 +19,8 @@ import Auth from "./pages/auth/auth";
 import Profile from "./pages/profile/profile";
 import Projects from "./pages/project/projects";
 import ProfileSetup from "./pages/profile/profile-setup";
+import Project from "./pages/project/project";
+import Overview from "./pages/project/overview/overview";
 
 const PrivateRoute = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
@@ -112,6 +114,16 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/projects/:projectId"
+            element={
+              <PrivateRoute>
+                <Project />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<Overview />} />
+          </Route>
         </Route>
 
         <Route

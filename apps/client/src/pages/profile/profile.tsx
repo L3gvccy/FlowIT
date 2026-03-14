@@ -1,3 +1,4 @@
+import ProjectDisplay from "@/components/project/project-display";
 import SkillLabel from "@/components/skill/skill-label";
 import SkillSearch from "@/components/skill/skill-search";
 import UserAvatar from "@/components/user-avatar";
@@ -7,7 +8,12 @@ import {
   GET_PROFILE_URL,
   REMOVE_USER_SKILL_URL,
 } from "@/utils/constants";
-import type { User, UserSkillDto } from "@flowit/shared";
+import type {
+  ProjectInterface,
+  EmployeeInterface,
+  User,
+  UserSkillDto,
+} from "@flowit/shared";
 import {
   ArrowLeft,
   Pen,
@@ -27,8 +33,8 @@ const Profile = () => {
   const [user, setUser] = useState<User | undefined>(undefined);
   const [editable, setEditable] = useState(false);
   const [skills, setSkills] = useState([]);
-  const [projects, setProjects] = useState([]);
-  const [employees, setEmployees] = useState([]);
+  const [projects, setProjects] = useState<ProjectInterface[]>([]);
+  const [employees, setEmployees] = useState<EmployeeInterface[]>([]);
 
   const [editingSkills, setEditingSkills] = useState(false);
 
@@ -182,8 +188,18 @@ const Profile = () => {
             )}
           </div>
         </div>
-        <div className="flex flex-col gap-2 w-full p-4 rounded-xl shadow-md">
+        <div className="flex flex-col gap-6 w-full p-4 rounded-xl shadow-md">
           <p className="text-xl font-semibold">Проекти:</p>
+
+          {projects.map((p) => (
+            <ProjectDisplay
+              project={p}
+              role={
+                employees.find((e) => e.projectId === p.id)?.role || "EMPLOYEE"
+              }
+              inProfile={true}
+            />
+          ))}
         </div>
       </div>
     </div>
