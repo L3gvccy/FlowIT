@@ -106,7 +106,6 @@ const CreateProject = () => {
                 type="file"
                 accept=".png,.jpg,.jpeg"
                 className="border-0 outline-0 bg-zinc-100 rounded-xl p-2"
-                placeholder="example@gmail.com"
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
                     setFile(e.target.files[0]);

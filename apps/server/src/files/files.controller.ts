@@ -21,7 +21,8 @@ export class FilesController {
   )
   async upload(@UploadedFile() file: Express.Multer.File) {
     const uploaded = await this.filesService.uploadFile(file, "flow-it");
+    console.log(uploaded);
 
-    return { url: uploaded.secure_url, name: uploaded.original_filename };
+    return { url: uploaded.secure_url, name: file.originalname };
   }
 }

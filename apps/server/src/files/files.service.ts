@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { UploadApiErrorResponse, UploadApiResponse } from "cloudinary";
 import { cloudinary } from "./cloudinary.provider";
 import { Readable } from "stream";
+import path from "path";
 
 @Injectable()
 export class FilesService {
@@ -9,11 +10,32 @@ export class FilesService {
     file: Express.Multer.File,
     folder = "uploads",
   ): Promise<UploadApiResponse> {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const baseName = path.basename(file.originalname, ext);
+
+    const imageExtensions = [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".webp",
+      ".gif",
+      ".svg",
+      ".avif",
+    ];
+
+    const isImage = imageExtensions.includes(ext);
+    const resourceType = isImage ? "image" : "raw";
+
+    const publicId = isImage
+      ? `${folder}/${baseName}`
+      : `${folder}/${baseName}${ext}`;
+
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder,
-          resource_type: "auto",
+          public_id: publicId,
+          resource_type: resourceType,
         },
         (
           error: UploadApiErrorResponse | undefined,

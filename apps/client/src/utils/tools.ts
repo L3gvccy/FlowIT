@@ -13,3 +13,11 @@ export const employeeRoleToString = (role: employeeRole) => {
       break;
   }
 };
+
+export const complexityList = {
+  1: "Легка ★",
+  2: "Нижче середньої ★★",
+  3: "Середня ★★★",
+  4: "Висока ★★★★",
+  5: "Критична ★★★★★",
+};

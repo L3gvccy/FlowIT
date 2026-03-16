@@ -47,7 +47,7 @@ const SkillSearch = ({
         <input
           type="text"
           className="flex-1 border-0 outline-0 bg-zinc-100 rounded-xl p-2"
-          placeholder="Введіть вашу навичку"
+          placeholder="Введіть назву навички"
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);

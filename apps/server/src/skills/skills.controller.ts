@@ -13,6 +13,12 @@ export class SkillsController {
     return await this.skillsService.searchSkills(dto.query);
   }
 
+  @Post("find-by-name")
+  async findByName(@Body() dto: { name: string }) {
+    const skill = await this.skillsService.getOrCreateSkill(dto.name);
+    return { skill };
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post("add-user-skill")
   async addUserSkill(
