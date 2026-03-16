@@ -21,6 +21,7 @@ import Projects from "./pages/project/projects";
 import ProfileSetup from "./pages/profile/profile-setup";
 import Project from "./pages/project/project";
 import Overview from "./pages/project/overview/overview";
+import Tasks from "./pages/project/tasks/tasks";
 
 const PrivateRoute = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
@@ -123,6 +124,7 @@ function App() {
             }
           >
             <Route index element={<Overview />} />
+            <Route path="tasks" element={<Tasks />} />
           </Route>
         </Route>
 

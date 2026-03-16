@@ -11,18 +11,12 @@ const ProjectNavigation = ({
   role?: employeeRole;
 }) => {
   return (
-    <div className="flex flex-col w-full p-2 rounded-xl shadow-md md:max-w-72">
-      <ProjectNavLink to={`/projects/${projectId}`}>
+    <div className="flex flex-col w-full p-2 rounded-xl shadow-md md:max-w-72 h-fit">
+      <ProjectNavLink to={`/projects/${projectId}`} end>
         <Info />
         <p>Інформація</p>
       </ProjectNavLink>
-      <ProjectNavLink
-        to={
-          role === "EMPLOYEE"
-            ? `/projects/${projectId}/my-tasks`
-            : `/projects/${projectId}/all-tasks`
-        }
-      >
+      <ProjectNavLink to={`/projects/${projectId}/tasks`}>
         <CalendarCheck />
         <p>Задачі</p>
       </ProjectNavLink>

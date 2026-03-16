@@ -1,12 +1,7 @@
 import ProjectLogo from "@/components/project/project-logo";
-import type { EmployeeInterface, ProjectInterface } from "@flowit/shared";
 import React from "react";
 import { useOutletContext } from "react-router-dom";
-
-type ProjectOutletContext = {
-  project: ProjectInterface;
-  employee: EmployeeInterface;
-};
+import type { ProjectOutletContext } from "../types/project-outlet-context";
 
 const Overview = () => {
   const { project } = useOutletContext<ProjectOutletContext>();

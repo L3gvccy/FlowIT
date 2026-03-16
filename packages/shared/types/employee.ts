@@ -6,4 +6,5 @@ export interface EmployeeInterface {
   projectId: string;
   role: employeeRole;
   kpi: number;
+  createdAt: Date;
 }
