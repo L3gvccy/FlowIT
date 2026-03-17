@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { User } from "@flowit/shared";
+import type { UserInterface } from "@flowit/shared";
 
 interface UserState {
-  user: User | null;
+  user: UserInterface | null;
 }
 
 const initialState: UserState = {

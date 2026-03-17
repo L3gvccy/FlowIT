@@ -1,4 +1,5 @@
 import type { employeeRole } from "./employee-role";
+import type { UserInterface } from "./user";
 
 export interface EmployeeInterface {
   id: string;
@@ -7,4 +8,5 @@ export interface EmployeeInterface {
   role: employeeRole;
   kpi: number;
   createdAt: Date;
+  user: UserInterface;
 }

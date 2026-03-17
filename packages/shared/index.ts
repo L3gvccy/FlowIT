@@ -14,3 +14,5 @@ export * from "./types/skill";
 export * from "./types/task-skill";
 export * from "./types/task";
 export * from "./types/attachment";
+export * from "./types/assignments";
+export * from "./types/task-message";

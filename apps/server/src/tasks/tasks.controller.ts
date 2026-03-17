@@ -1,4 +1,12 @@
-import { Body, Controller, Post, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
 import { TasksService } from "./tasks.service";
 import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 import { CurrentUser } from "src/common/decorators/current-user.decorator";
@@ -15,5 +23,25 @@ export class TasksController {
     @Body() dto: CreateTaskDto,
   ) {
     return await this.tasksService.createTask(currentUser.id, dto);
+  }
+
+  @Get("get/:projectId/:taskId")
+  @UseGuards(JwtAuthGuard)
+  async getTask(
+    @CurrentUser() currentUser: { id: string },
+    @Param("projectId") projectId: string,
+    @Param("taskId") taskId: string,
+  ) {
+    return await this.tasksService.getTask(currentUser.id, projectId, taskId);
+  }
+
+  @Get("get-tasks/:projectId")
+  @UseGuards(JwtAuthGuard)
+  async getTasks(
+    @CurrentUser() currentUser: { id: string },
+    @Param("projectId") projectId: string,
+    @Query() query: any,
+  ) {
+    return await this.tasksService.getTasks(currentUser.id, projectId, query);
   }
 }

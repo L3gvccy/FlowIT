@@ -5,7 +5,7 @@ import { apiClient } from "@/utils/api-client";
 import { REGISTER_URL } from "@/utils/constants";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/userSlice";
-import type { User } from "@flowit/shared";
+import type { UserInterface } from "@flowit/shared";
 import { useNavigate } from "react-router-dom";
 
 const RegisterForm = ({ toggleForm }: { toggleForm: () => void }) => {
@@ -35,7 +35,7 @@ const RegisterForm = ({ toggleForm }: { toggleForm: () => void }) => {
     await apiClient
       .post(REGISTER_URL, data)
       .then((res) => {
-        const user: User = res.data.user;
+        const user: UserInterface = res.data.user;
         dispatch(setUser(user));
 
         navigate(user.isProfileCompleted ? "/" : "/profile-setup");

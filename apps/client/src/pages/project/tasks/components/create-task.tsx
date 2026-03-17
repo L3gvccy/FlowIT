@@ -80,8 +80,8 @@ const CreateTask = () => {
       )
       .then((res) => {
         const attachment: AttachmentInterface = {
-          name: res.data.name,
-          url: res.data.url,
+          fileName: res.data.name,
+          fileUrl: res.data.url,
         };
         setAttachments([...attachments, attachment]);
         toast.success("Файл завантажено");
@@ -255,8 +255,8 @@ const CreateTask = () => {
         {attachments.length > 0 ? (
           attachments.map((a) => (
             <TaskAttchment
-              fileName={a.name}
-              fileUrl={a.url}
+              fileName={a.fileName}
+              fileUrl={a.fileUrl}
               removable={true}
               onRemove={() => {
                 removeAttachment(a);

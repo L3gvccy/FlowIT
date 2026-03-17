@@ -1,4 +1,7 @@
+import type { AttachmentInterface } from "./attachment";
 import type { TaskSkillInterface } from "./task-skill";
+import type { AssignmentInterface } from "./assignments";
+import type { TaskMessageInterface } from "./task-message";
 
 export interface TaskInterface {
   id: string;
@@ -6,7 +9,11 @@ export interface TaskInterface {
   title: string;
   description: string;
   complexity: number;
-  deadline: Date;
-
+  deadline: string;
   taskSkills: TaskSkillInterface[];
+  attachments: AttachmentInterface[];
+  assignment: AssignmentInterface | null;
+  messages: TaskMessageInterface[];
+  createdAt: string;
+  updatedAt: string;
 }

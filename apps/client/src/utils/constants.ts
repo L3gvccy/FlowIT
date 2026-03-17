@@ -26,6 +26,10 @@ export const GET_PROJECT_URL = (projectId: string) =>
 
 export const TASKS_URL = `${API_URL}/tasks`;
 export const CREATE_TASK_URL = `${TASKS_URL}/create`;
+export const GET_TASK_URL = (projectId: string, taskId: string) =>
+  `${TASKS_URL}/get/${projectId}/${taskId}`;
+export const GET_TASKS_URL = (projectId: string, params?: string) =>
+  `${TASKS_URL}/get-tasks/${projectId}${params ? `?${params}` : ""}`;
 
 export const FILES_URL = `${API_URL}/files`;
 export const UPLOAD_FILE_URL = `${FILES_URL}/upload`;

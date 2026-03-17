@@ -6,7 +6,7 @@ import { LOGIN_URL } from "@/utils/constants";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/userSlice";
 import { useNavigate } from "react-router-dom";
-import type { User } from "@flowit/shared";
+import type { UserInterface } from "@flowit/shared";
 
 const LoginForm = ({ toggleForm }: { toggleForm: () => void }) => {
   const dispatch = useDispatch();
@@ -23,7 +23,7 @@ const LoginForm = ({ toggleForm }: { toggleForm: () => void }) => {
     await apiClient
       .post(LOGIN_URL, data)
       .then((res) => {
-        const user: User = res.data.user;
+        const user: UserInterface = res.data.user;
         dispatch(setUser(user));
 
         navigate(user.isProfileCompleted ? "/" : "/profile-setup");

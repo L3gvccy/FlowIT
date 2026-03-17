@@ -1,18 +1,257 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import type { ProjectOutletContext } from "../types/project-outlet-context";
+import { apiClient } from "@/utils/api-client";
+import type { TaskInterface } from "@flowit/shared";
+import {
+  assignmentStatusList,
+  complexityList,
+  getFullName,
+} from "@/utils/tools";
+import { CalendarDays, MessageSquareMore, Pencil, User2 } from "lucide-react";
+import dayjs from "dayjs";
+import TaskAttchment from "@/components/project-attachment";
+import { GET_TASK_URL } from "@/utils/constants";
 
 const Task = () => {
   const { taskId } = useParams();
   const { project } = useOutletContext<ProjectOutletContext>();
   const navigate = useNavigate();
 
+  const [task, setTask] = useState<TaskInterface | null>(null);
+  const [editable, setEditable] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const getTask = async () => {
+    if (!taskId) return;
+
+    try {
+      setLoading(true);
+      const res = await apiClient.get(GET_TASK_URL(project.id, taskId));
+      setTask(res.data.task);
+      setEditable(res.data.editable);
+    } catch (error) {
+      console.error(error);
+      setTask(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!taskId) {
       navigate(`/projects/${project.id}/tasks`);
+      return;
     }
-  }, []);
-  return <div>Task {taskId}</div>;
+    getTask();
+  }, [taskId, project.id, navigate]);
+
+  if (loading) {
+    return (
+      <div className="w-full rounded-xl shadow-md p-4">
+        <p className="text-center font-semibold">Завантаження...</p>
+      </div>
+    );
+  }
+
+  if (!task) {
+    return (
+      <div className="w-full rounded-xl shadow-md p-4">
+        <p className="text-center font-semibold">Завдання не знайдено</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-6 w-full rounded-xl shadow-md p-4">
+      {/* HEADER */}
+      <div className="flex items-start justify-between gap-3 border-b pb-3">
+        <div className="flex flex-col gap-1">
+          <p className="text-xl font-semibold">{task.title}</p>
+          <p className="opacity-80">
+            {complexityList[task.complexity] ?? "Складність не вказана"}
+          </p>
+          <div className="flex items-center gap-2 text-sm opacity-70">
+            <CalendarDays size={16} />
+            <p>{dayjs(task.deadline).format("LLL")}</p>
+          </div>
+        </div>
+
+        {editable && (
+          <button className="flex items-center gap-2 rounded-xl bg-zinc-100 px-3 py-2 hover:bg-zinc-200 transition">
+            <Pencil size={16} />
+            Редагувати
+          </button>
+        )}
+      </div>
+
+      {/* DESCRIPTION */}
+      <div className="flex flex-col gap-2 border-b pb-3">
+        <p className="font-semibold">Опис</p>
+        <p className="whitespace-pre-wrap opacity-90">
+          {task.description || "Опис відсутній"}
+        </p>
+      </div>
+
+      {/* ASSIGNMENT */}
+      <div className="flex flex-col gap-2 border-b pb-3">
+        <p className="font-semibold">Призначення</p>
+
+        {task.assignment ? (
+          <>
+            <div className="flex items-center gap-2">
+              <User2 size={16} />
+              <p>
+                {getFullName(
+                  task.assignment.employee.user.name,
+                  task.assignment.employee.user.surname,
+                )}
+              </p>
+            </div>
+
+            <p className="text-sm">
+              {assignmentStatusList[task.assignment.status] ??
+                task.assignment.status}
+            </p>
+
+            {task.assignment.completedAt && (
+              <p className="text-sm opacity-70">
+                Завершено: {dayjs(task.assignment.completedAt).format("LLL")}
+              </p>
+            )}
+          </>
+        ) : (
+          <p className="opacity-70">Не призначено</p>
+        )}
+      </div>
+
+      {/* SKILLS */}
+      <div className="flex flex-col gap-2 border-b pb-3">
+        <p className="font-semibold">Скіли</p>
+
+        {task.taskSkills?.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {task.taskSkills.map((taskSkill) => (
+              <div
+                key={taskSkill.skill.id}
+                className="bg-zinc-100 px-3 py-1 rounded-xl text-sm"
+              >
+                {taskSkill.skill.name}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="opacity-70">Немає</p>
+        )}
+      </div>
+
+      {/* ATTACHMENTS */}
+      <div className="flex flex-col gap-2 border-b pb-3">
+        <p className="font-semibold">Файли</p>
+
+        {task.attachments?.length > 0 ? (
+          <div className="flex flex-wrap gap-3">
+            {task.attachments.map((attachment) => (
+              <TaskAttchment
+                key={attachment.fileUrl}
+                fileName={attachment.fileName}
+                fileUrl={attachment.fileUrl}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="opacity-70">Немає файлів</p>
+        )}
+      </div>
+
+      {/* MESSAGES */}
+      <div className="flex flex-col gap-3 border-b pb-3">
+        <div className="flex items-center gap-2">
+          <MessageSquareMore size={16} />
+          <p className="font-semibold">Повідомлення</p>
+        </div>
+
+        {task.messages?.length > 0 ? (
+          task.messages.map((message) => (
+            <div
+              key={message.id}
+              className="bg-zinc-100 rounded-xl p-3 flex flex-col gap-2"
+            >
+              <div className="flex justify-between text-sm">
+                <p className="font-medium">
+                  {getFullName(
+                    message.employee.user.name,
+                    message.employee.user.surname,
+                  )}
+                </p>
+                <p className="opacity-60">
+                  {dayjs(message.timestamp).format("LLL")}
+                </p>
+              </div>
+
+              {message.content && (
+                <p className="whitespace-pre-wrap">{message.content}</p>
+              )}
+
+              {message.fileUrl && (
+                <a
+                  href={message.fileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm underline opacity-80"
+                >
+                  {message.fileName || "Файл"}
+                </a>
+              )}
+            </div>
+          ))
+        ) : (
+          <p className="opacity-70">Немає повідомлень</p>
+        )}
+      </div>
+
+      {/* STATUS HISTORY */}
+      {task.assignment && task.assignment?.statusUpdates?.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <p className="font-semibold">Історія</p>
+
+          {task.assignment.statusUpdates.map((update) => (
+            <div
+              key={update.id}
+              className="bg-zinc-100 rounded-xl p-3 flex flex-col gap-2"
+            >
+              <div className="flex justify-between text-sm">
+                <p className="font-medium">
+                  {assignmentStatusList[update.newStatus]}
+                </p>
+                <p className="opacity-60">
+                  {dayjs(update.timestamp).format("LLL")}
+                </p>
+              </div>
+
+              {update.message && <p>{update.message}</p>}
+
+              {update.attachments?.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {update.attachments.map((a) => (
+                    <a
+                      key={a.id}
+                      href={a.fileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm underline"
+                    >
+                      {a.fileName}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default Task;

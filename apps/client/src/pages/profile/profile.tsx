@@ -11,7 +11,7 @@ import {
 import type {
   ProjectInterface,
   EmployeeInterface,
-  User,
+  UserInterface,
   UserSkillDto,
 } from "@flowit/shared";
 import {
@@ -30,7 +30,7 @@ const Profile = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<User | undefined>(undefined);
+  const [user, setUser] = useState<UserInterface | undefined>(undefined);
   const [editable, setEditable] = useState(false);
   const [skills, setSkills] = useState([]);
   const [projects, setProjects] = useState<ProjectInterface[]>([]);
