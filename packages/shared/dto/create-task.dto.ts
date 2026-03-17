@@ -9,5 +9,5 @@ export interface CreateTaskDto {
   deadline: Date;
 
   skills: SkillInterface[];
-  attachment: AttachmentInterface[];
+  attachments: AttachmentInterface[];
 }

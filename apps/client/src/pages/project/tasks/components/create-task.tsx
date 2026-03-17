@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import type { ProjectOutletContext } from "../../types/project-outlet-context";
 import {
   Select,
@@ -11,10 +11,19 @@ import {
 import { complexityList } from "@/utils/tools";
 import TaskAttchment from "@/components/project-attachment";
 import SkillSearch from "@/components/skill/skill-search";
-import type { AttachmentInterface, SkillInterface } from "@flowit/shared";
+import type {
+  AttachmentInterface,
+  CreateTaskDto,
+  SkillInterface,
+  TaskInterface,
+} from "@flowit/shared";
 import SkillLabel from "@/components/skill/skill-label";
 import { apiClient } from "@/utils/api-client";
-import { FIND_SKILL_BY_NAME, UPLOAD_FILE_URL } from "@/utils/constants";
+import {
+  CREATE_TASK_URL,
+  FIND_SKILL_BY_NAME,
+  UPLOAD_FILE_URL,
+} from "@/utils/constants";
 import { FilePlus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -33,7 +42,9 @@ const CreateTask = () => {
 
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
+
   const { project } = useOutletContext<ProjectOutletContext>();
+  const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [complexity, setComplexity] = useState(1);
@@ -89,6 +100,32 @@ const CreateTask = () => {
 
   const removeAttachment = (attachment: AttachmentInterface) => {
     setAttachments(attachments.filter((a) => a !== attachment));
+  };
+
+  const createTask = async () => {
+    setCreating(true);
+    const data: CreateTaskDto = {
+      projectId: project.id,
+      title,
+      description,
+      complexity,
+      deadline: new Date(deadline),
+      skills,
+      attachments,
+    };
+    await apiClient
+      .post(CREATE_TASK_URL, data)
+      .then((res) => {
+        const task: TaskInterface = res.data.task;
+        navigate(`/projects/${project.id}/tasks/${task.id}`);
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error(err.response.data.message);
+      })
+      .finally(() => {
+        setCreating(false);
+      });
   };
 
   useEffect(() => {
@@ -234,7 +271,9 @@ const CreateTask = () => {
       <button
         disabled={uploading || creating || !title || !description}
         className="w-full rounded-xl p-2 bg-violet-600 text-white hover:bg-violet-500 disabled:bg-violet-900 disabled:cursor-not-allowed font-semibold cursor-pointer transition-all duration-300"
-        onClick={() => {}}
+        onClick={() => {
+          createTask();
+        }}
       >
         Створити завадння
       </button>
