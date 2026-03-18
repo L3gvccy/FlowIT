@@ -5,6 +5,8 @@ export * from "./dto/search-skill.dto";
 export * from "./dto/create-project.dto";
 export * from "./dto/create-task.dto";
 export * from "./dto/employee-update.dto";
+export * from "./dto/assign-task.dto";
+export * from "./dto/task-candidates.dto";
 
 export * from "./types/user";
 export * from "./types/user-profile";

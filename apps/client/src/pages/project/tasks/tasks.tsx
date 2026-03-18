@@ -109,7 +109,7 @@ const Tasks = () => {
           <>
             <button
               className={`rounded-xl px-3 py-2 transition-all duration-300 ${
-                activeTab === "all" ? "bg-zinc-900 text-white" : "bg-zinc-100"
+                activeTab === "all" ? "bg-violet-600 text-white" : "bg-zinc-100"
               }`}
               onClick={() => setActiveTab("all")}
             >
@@ -117,7 +117,7 @@ const Tasks = () => {
             </button>
             <button
               className={`rounded-xl px-3 py-2 transition-all duration-300 ${
-                activeTab === "my" ? "bg-zinc-900 text-white" : "bg-zinc-100"
+                activeTab === "my" ? "bg-violet-600 text-white" : "bg-zinc-100"
               }`}
               onClick={() => setActiveTab("my")}
             >
@@ -127,7 +127,7 @@ const Tasks = () => {
         )}
 
         {role === "EMPLOYEE" && (
-          <div className="rounded-xl bg-zinc-900 px-3 py-2 text-white">
+          <div className="rounded-xl bg-violet-600 px-3 py-2 text-white">
             Мої задачі
           </div>
         )}
@@ -204,7 +204,7 @@ const Tasks = () => {
           <div className="flex items-center gap-2">
             <button
               className={`rounded-xl px-3 py-2 transition-all duration-300 ${
-                viewMode === "list" ? "bg-zinc-900 text-white" : "bg-white"
+                viewMode === "list" ? "bg-violet-600 text-white" : "bg-white"
               }`}
               onClick={() => setViewMode("list")}
             >
@@ -212,7 +212,7 @@ const Tasks = () => {
             </button>
             <button
               className={`rounded-xl px-3 py-2 transition-all duration-300 ${
-                viewMode === "board" ? "bg-zinc-900 text-white" : "bg-white"
+                viewMode === "board" ? "bg-violet-600 text-white" : "bg-white"
               }`}
               onClick={() => setViewMode("board")}
             >

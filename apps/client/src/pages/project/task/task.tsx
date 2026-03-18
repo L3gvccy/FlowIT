@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import type { ProjectOutletContext } from "../types/project-outlet-context";
 import { apiClient } from "@/utils/api-client";
-import type { TaskInterface } from "@flowit/shared";
+import type { IAssignTaskResponse, TaskInterface } from "@flowit/shared";
 import {
   assignmentStatusList,
   complexityList,
@@ -12,6 +12,7 @@ import { CalendarDays, MessageSquareMore, Pencil, User2 } from "lucide-react";
 import dayjs from "dayjs";
 import TaskAttchment from "@/components/project-attachment";
 import { GET_TASK_URL } from "@/utils/constants";
+import AssignTaskDialog from "./components/assign-task-dialog";
 
 const Task = () => {
   const { taskId } = useParams();
@@ -36,6 +37,10 @@ const Task = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAssigned = async (_response: IAssignTaskResponse) => {
+    await getTask();
   };
 
   useEffect(() => {
@@ -77,12 +82,18 @@ const Task = () => {
           </div>
         </div>
 
-        {editable && (
-          <button className="flex items-center gap-2 rounded-xl bg-zinc-100 px-3 py-2 hover:bg-zinc-200 transition">
-            <Pencil size={16} />
-            Редагувати
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {editable && !task.assignment && taskId && (
+            <AssignTaskDialog taskId={taskId} onAssigned={handleAssigned} />
+          )}
+
+          {editable && (
+            <button className="flex items-center gap-2 rounded-xl bg-zinc-100 px-3 py-2 hover:bg-zinc-200 transition-all duration-300 cursor-pointer">
+              <Pencil size={16} />
+              Редагувати
+            </button>
+          )}
+        </div>
       </div>
 
       {/* DESCRIPTION */}

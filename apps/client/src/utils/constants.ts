@@ -13,6 +13,22 @@ export const UPDATE_PROFILE_URL = `${USER_URL}/update-profile`;
 export const GET_PROFILE_URL = (userId: string) => `${USER_URL}/get/${userId}`;
 
 export const EMPLOYEE_URL = `${API_URL}/employee`;
+export const GET_EMPLOYEES_URL = (projectId: string, params?: string) =>
+  `${EMPLOYEE_URL}/${projectId}${
+    params?.toString() ? `?${params.toString()}` : ""
+  }`;
+export const ADD_EMPLOYEE_URL = (projectId: string) =>
+  `${EMPLOYEE_URL}/${projectId}`;
+export const UPDATE_EMPLOYEE_ROLE_URL = (
+  projectId: string,
+  employeeId: string,
+) => `${EMPLOYEE_URL}/${projectId}/${employeeId}/role`;
+export const REMOVE_EMPLOYEE_URL = (projectId: string, employeeId: string) =>
+  `${EMPLOYEE_URL}/${projectId}/${employeeId}`;
+export const GET_EMPLOYEE_URL = (projectId: string, employeeId: string) =>
+  `${EMPLOYEE_URL}/${projectId}/${employeeId}`;
+export const SEARCH_USERS_URL = (projectId: string) =>
+  `${EMPLOYEE_URL}/search-users/${projectId}`;
 
 export const SKILLS_URL = `${API_URL}/skills`;
 export const SEARCH_SKILLS_URL = `${SKILLS_URL}/search-skills`;
@@ -32,6 +48,10 @@ export const GET_TASK_URL = (projectId: string, taskId: string) =>
   `${TASKS_URL}/get/${projectId}/${taskId}`;
 export const GET_TASKS_URL = (projectId: string, params?: string) =>
   `${TASKS_URL}/get-tasks/${projectId}${params ? `?${params}` : ""}`;
+export const GET_TASK_CANDIDATES_URL = (taskId: string) =>
+  `${TASKS_URL}/${taskId}/candidates`;
+export const ASSIGN_TASK_URL = (taskId: string, employeeId: string) =>
+  `${TASKS_URL}/${taskId}/assign/${employeeId}`;
 
 export const FILES_URL = `${API_URL}/files`;
 export const UPLOAD_FILE_URL = `${FILES_URL}/upload`;

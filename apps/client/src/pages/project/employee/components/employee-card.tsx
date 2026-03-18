@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { UserMinus } from "lucide-react";
 
 interface Props {
   projectId: string;
@@ -77,8 +78,9 @@ const EmployeeCard = ({
 
           <button
             onClick={() => onRemove(employee.id)}
-            className="rounded-xl bg-red-500 px-3 py-2 text-white hover:bg-red-600 transition-all duration-300"
+            className="flex gap-2 items-center rounded-xl bg-red-500 px-3 py-2 text-white hover:bg-red-600 transition-all duration-300 cursor-pointer"
           >
+            <UserMinus size={18} />
             Вилучити
           </button>
         </div>

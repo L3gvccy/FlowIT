@@ -2,10 +2,16 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import type { ProjectOutletContext } from "../types/project-outlet-context";
 import { apiClient } from "@/utils/api-client";
-import { EMPLOYEE_URL } from "@/utils/constants";
+import {
+  ADD_EMPLOYEE_URL,
+  GET_EMPLOYEES_URL,
+  REMOVE_EMPLOYEE_URL,
+  UPDATE_EMPLOYEE_ROLE_URL,
+} from "@/utils/constants";
 import type { EmployeeInterface } from "@flowit/shared";
 import EmployeeCard from "./components/employee-card";
 import EmployeeSearch from "./components/employee-search";
+import { toast } from "sonner";
 
 interface EmployeesResponse {
   employees: EmployeeInterface[];
@@ -39,9 +45,7 @@ const Employees = () => {
       if (search.trim()) params.set("search", search.trim());
 
       const res = await apiClient.get<EmployeesResponse>(
-        `${EMPLOYEE_URL}/${project.id}${
-          params.toString() ? `?${params.toString()}` : ""
-        }`,
+        GET_EMPLOYEES_URL(project.id, params?.toString()),
       );
 
       setEmployees(res.data.employees);
@@ -56,11 +60,11 @@ const Employees = () => {
 
   const handleAddEmployee = async (user: FoundUser, role: string) => {
     try {
-      await apiClient.post(`${EMPLOYEE_URL}/${project.id}`, {
+      await apiClient.post(ADD_EMPLOYEE_URL(project.id), {
         email: user.email,
         role,
       });
-
+      toast.success("Користувача успішно додано до проекту");
       getEmployees();
     } catch (error) {
       console.error(error);
@@ -69,14 +73,12 @@ const Employees = () => {
 
   const handleRoleChange = async (employeeId: string, role: string) => {
     try {
-      await apiClient.patch(
-        `${EMPLOYEE_URL}/${project.id}/${employeeId}/role`,
-        {
-          role,
-        },
-      );
+      await apiClient.patch(UPDATE_EMPLOYEE_ROLE_URL(project.id, employeeId), {
+        role,
+      });
 
       getEmployees();
+      toast.success("Роль користувача успішно оновлено");
     } catch (error) {
       console.error(error);
     }
@@ -84,7 +86,8 @@ const Employees = () => {
 
   const handleRemove = async (employeeId: string) => {
     try {
-      await apiClient.delete(`${EMPLOYEE_URL}/${project.id}/${employeeId}`);
+      await apiClient.delete(REMOVE_EMPLOYEE_URL(project.id, employeeId));
+      toast.success("Користувача успішно вилучено з проекту");
       getEmployees();
     } catch (error) {
       console.error(error);
@@ -101,15 +104,8 @@ const Employees = () => {
         Персонал
       </p>
 
-      <input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Пошук працівника проекту"
-        className="rounded-xl bg-zinc-100 px-3 py-2 outline-0 w-full"
-      />
-
       {editable && (
-        <div className="flex gap-2 flex-wrap items-start">
+        <div className="flex gap-2 flex-wrap items-start border-b pb-4">
           <div className="flex-1 min-w-72">
             <EmployeeSearch
               projectId={project.id}
@@ -121,6 +117,13 @@ const Employees = () => {
           </div>
         </div>
       )}
+
+      <input
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Пошук працівника проекту"
+        className="rounded-xl bg-zinc-100 px-3 py-2 outline-0 w-full"
+      />
 
       {loading ? (
         <p className="text-center opacity-70">Завантаження...</p>

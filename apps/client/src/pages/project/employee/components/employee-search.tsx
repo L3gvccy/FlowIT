@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useDebounce from "@/hooks/debounce";
 import { apiClient } from "@/utils/api-client";
-import { EMPLOYEE_URL } from "@/utils/constants";
+import { EMPLOYEE_URL, SEARCH_USERS_URL } from "@/utils/constants";
 import { Plus, X } from "lucide-react";
 import { getFullName } from "@/utils/tools";
 import UserAvatar from "@/components/user-avatar";
@@ -70,10 +70,7 @@ const EmployeeSearch = ({
     if (query.trim() === "") return;
 
     try {
-      const res = await apiClient.post(
-        `${EMPLOYEE_URL}/search-users/${projectId}`,
-        { query },
-      );
+      const res = await apiClient.post(SEARCH_USERS_URL(projectId), { query });
 
       const filteredUsers = res.data.users.filter(
         (user: FoundUser) =>
@@ -193,7 +190,7 @@ const EmployeeSearch = ({
 
             <button
               type="button"
-              className="flex justify-center items-center h-8 w-8 rounded-xl bg-white hover:text-red-600 transition-all duration-300"
+              className="flex justify-center items-center h-8 w-8 rounded-xl bg-white hover:text-red-600 transition-all duration-300 cursor-pointer"
               onClick={() => {
                 setSelectedUser(null);
                 setSearch("");

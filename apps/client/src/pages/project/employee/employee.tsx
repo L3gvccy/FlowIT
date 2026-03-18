@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import type { ProjectOutletContext } from "../types/project-outlet-context";
 import { apiClient } from "@/utils/api-client";
-import { EMPLOYEE_URL } from "@/utils/constants";
+import { EMPLOYEE_URL, GET_EMPLOYEE_URL } from "@/utils/constants";
 import type { EmployeeInterface, AssignmentInterface } from "@flowit/shared";
 import UserAvatar from "@/components/user-avatar";
 import dayjs from "dayjs";
@@ -44,7 +44,7 @@ const EmployeePage = () => {
       setLoading(true);
 
       const res = await apiClient.get<EmployeeDetailsResponse>(
-        `${EMPLOYEE_URL}/${project.id}/${employeeId}`,
+        GET_EMPLOYEE_URL(project.id, employeeId),
       );
 
       setEmployee(res.data.employee);

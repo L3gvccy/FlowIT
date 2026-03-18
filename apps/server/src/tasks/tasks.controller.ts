@@ -44,4 +44,18 @@ export class TasksController {
   ) {
     return await this.tasksService.getTasks(currentUser.id, projectId, query);
   }
+
+  // Assignments
+  @Get(":taskId/candidates")
+  async getTaskCandidates(@Param("taskId") taskId: string) {
+    return this.tasksService.getTaskCandidates(taskId);
+  }
+
+  @Post(":taskId/assign/:employeeId")
+  async assignTask(
+    @Param("taskId") taskId: string,
+    @Param("employeeId") employeeId: string,
+  ) {
+    return this.tasksService.assignTask(taskId, employeeId);
+  }
 }
