@@ -6,9 +6,10 @@ import { SkillsModule } from './skills/skills.module';
 import { ProjectModule } from './project/project.module';
 import { FilesModule } from './files/files.module';
 import { TasksModule } from './tasks/tasks.module';
+import { EmployeeModule } from './employee/employee.module';
 
 @Module({
-  imports: [AuthModule, UserModule, SkillsModule, ProjectModule, FilesModule, TasksModule],
+  imports: [AuthModule, UserModule, SkillsModule, ProjectModule, FilesModule, TasksModule, EmployeeModule],
   controllers: [],
   providers: [PrismaService],
 })

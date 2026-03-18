@@ -1,4 +1,5 @@
 import type { EmployeeInterface } from "./employee";
+import type { TaskInterface } from "./task";
 
 export type AssignmentStatus =
   | "CREATED"
@@ -32,4 +33,5 @@ export interface AssignmentInterface {
   completedAt: string | null;
   employee: EmployeeInterface;
   statusUpdates: AssignmentStatusUpdateInterface[];
+  task: TaskInterface;
 }

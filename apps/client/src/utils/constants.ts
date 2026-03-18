@@ -12,6 +12,8 @@ export const USER_URL = `${API_URL}/user`;
 export const UPDATE_PROFILE_URL = `${USER_URL}/update-profile`;
 export const GET_PROFILE_URL = (userId: string) => `${USER_URL}/get/${userId}`;
 
+export const EMPLOYEE_URL = `${API_URL}/employee`;
+
 export const SKILLS_URL = `${API_URL}/skills`;
 export const SEARCH_SKILLS_URL = `${SKILLS_URL}/search-skills`;
 export const FIND_SKILL_BY_NAME = `${SKILLS_URL}/find-by-name`;

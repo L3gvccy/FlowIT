@@ -1,6 +1,6 @@
 import React from "react";
 import ProjectNavLink from "./components/project-nav-link";
-import { CalendarCheck, Info } from "lucide-react";
+import { CalendarCheck, Info, Users } from "lucide-react";
 import type { employeeRole } from "@flowit/shared";
 
 const ProjectNavigation = ({
@@ -19,6 +19,10 @@ const ProjectNavigation = ({
       <ProjectNavLink to={`/projects/${projectId}/tasks`}>
         <CalendarCheck />
         <p>Задачі</p>
+      </ProjectNavLink>
+      <ProjectNavLink to={`/projects/${projectId}/employees`}>
+        <Users />
+        <p>Персонал</p>
       </ProjectNavLink>
 
       {role === "OWNER" && <></>}
