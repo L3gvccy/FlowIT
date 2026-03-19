@@ -12,10 +12,14 @@ import {
 } from "@flowit/shared";
 import { getAvailableStatusTransitions } from "./utils/get-available-status-transitions";
 import { PrismaService } from "src/prisma/prisma.service";
+import { EmployeeService } from "src/employee/employee.service";
 
 @Injectable()
 export class AssignmentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private employeeService: EmployeeService,
+  ) {}
 
   async getAvailableStatuses(assignmentId: string, userId: string) {
     const assignment = await this.prisma.assignment.findUnique({
@@ -156,6 +160,13 @@ export class AssignmentService {
 
     if (!updatedAssignment) {
       throw new BadRequestException("Failed to reload assignment");
+    }
+
+    if (nextStatus === "APPROVED") {
+      await this.employeeService.recalculateEmployeeKpi(
+        assignment.employeeId,
+        assignment.taskId,
+      );
     }
 
     return {

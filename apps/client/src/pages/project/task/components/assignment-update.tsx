@@ -26,7 +26,7 @@ const AssignmentUpdate = ({ update }: Props) => {
         <div className="self-stretch w-1 rounded-full bg-violet-600 mx-1.5"></div>
 
         <div className="flex flex-col gap-1">
-          {update.message && <p>{update.message}</p>}
+          {update.message ? <p>{update.message}</p> : <p>Без повідомлення</p>}
 
           {update.attachments?.length > 0 && (
             <div className="flex flex-wrap gap-2">

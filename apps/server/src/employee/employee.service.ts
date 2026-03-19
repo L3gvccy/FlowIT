@@ -296,4 +296,61 @@ export class EmployeeService {
 
     return { users };
   }
+
+  async recalculateEmployeeKpi(employeeId: string, taskId: string) {
+    const assignment = await this.prisma.assignment.findUnique({
+      where: { taskId },
+      include: {
+        task: true,
+        statusUpdates: {
+          orderBy: {
+            timestamp: "asc",
+          },
+        },
+        employee: true,
+      },
+    });
+
+    if (!assignment) return;
+
+    const oldKpi = Number(assignment.employee.kpi ?? 0) / 100;
+
+    const hadRejected = assignment.statusUpdates.some(
+      (update) => update.newStatus === "REJECTED",
+    );
+
+    const qualityScore = hadRejected ? 0.7 : 1.0;
+
+    const submittedAt = assignment.completedAt;
+    const deadline = assignment.task.deadline;
+
+    let deadlineScore = 1;
+
+    if (submittedAt && submittedAt > deadline) {
+      const delayHours =
+        (submittedAt.getTime() - deadline.getTime()) / (1000 * 60 * 60);
+
+      if (delayHours <= 24) deadlineScore = 0.8;
+      else if (delayHours <= 72) deadlineScore = 0.5;
+      else deadlineScore = 0.2;
+    }
+
+    const baseScore = 0.6 * qualityScore + 0.4 * deadlineScore;
+    const complexityWeight = 0.8 + 0.1 * assignment.task.complexity;
+    const taskScore = baseScore * complexityWeight;
+
+    const alpha = 0.2;
+    const newKpiNorm = alpha * taskScore + (1 - alpha) * oldKpi;
+    const newKpi = Math.min(
+      100,
+      Math.max(0, Number((newKpiNorm * 100).toFixed(2))),
+    );
+
+    await this.prisma.employee.update({
+      where: { id: employeeId },
+      data: {
+        kpi: newKpi,
+      },
+    });
+  }
 }
