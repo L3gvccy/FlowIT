@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import ChangeAssignmentStatusDialog from "./components/change-assignment-status-dialog";
+import AssignmentUpdate from "./components/assignment-update";
 
 const Task = () => {
   const { taskId } = useParams();
@@ -381,39 +382,8 @@ const Task = () => {
       {task.assignment && task.assignment?.statusUpdates?.length > 0 && (
         <div className="flex flex-col gap-3">
           <p className="font-semibold">Історія</p>
-
           {task.assignment.statusUpdates.map((update) => (
-            <div
-              key={update.id}
-              className="bg-zinc-100 rounded-xl p-3 flex flex-col gap-2"
-            >
-              <div className="flex justify-between text-sm">
-                <p className="font-medium">
-                  {assignmentStatusList[update.newStatus]}
-                </p>
-                <p className="opacity-60">
-                  {dayjs(update.timestamp).format("LLL")}
-                </p>
-              </div>
-
-              {update.message && <p>{update.message}</p>}
-
-              {update.attachments?.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {update.attachments.map((a) => (
-                    <a
-                      key={a.id}
-                      href={a.fileUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-sm underline"
-                    >
-                      {a.fileName}
-                    </a>
-                  ))}
-                </div>
-              )}
-            </div>
+            <AssignmentUpdate update={update} />
           ))}
         </div>
       )}
