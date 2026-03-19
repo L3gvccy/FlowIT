@@ -22,8 +22,8 @@ const AssignmentUpdate = ({ update }: Props) => {
         </div>
       </div>
 
-      <div className="flex gap-2">
-        <div className="h-full w-1 rounded-full bg-violet-600 mx-1.5"></div>
+      <div className="flex gap-2 h-fit">
+        <div className="self-stretch w-1 rounded-full bg-violet-600 mx-1.5"></div>
 
         <div className="flex flex-col gap-1">
           {update.message && <p>{update.message}</p>}

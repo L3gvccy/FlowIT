@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { apiClient } from "@/utils/api-client";
 import { CREATE_TASK_URL } from "@/utils/constants";
 import { toast } from "sonner";
 import type { CreateTaskDto, TaskInterface } from "@flowit/shared";
 import TaskForm from "./task-form";
+import type { ProjectOutletContext } from "../../types/project-outlet-context";
 
 const CreateTask = () => {
   const navigate = useNavigate();
+  const { project } = useOutletContext<ProjectOutletContext>();
   const [creating, setCreating] = useState(false);
 
   const createTask = async (data: CreateTaskDto) => {
@@ -15,7 +17,7 @@ const CreateTask = () => {
       setCreating(true);
       const res = await apiClient.post(CREATE_TASK_URL, data);
       const task: TaskInterface = res.data.task;
-      navigate(`../${task.id}`);
+      navigate(`/projects/${project.id}/tasks/${task.id}`);
     } catch (err: any) {
       console.error(err);
       toast.error(err.response?.data?.message || "Не вдалося створити задачу");

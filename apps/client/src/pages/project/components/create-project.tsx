@@ -89,7 +89,7 @@ const CreateProject = () => {
         <p>Новий проект</p>
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="w-[95vw] max-w-4xl">
           <DialogHeader>
             <DialogTitle>Новий проект</DialogTitle>
             <DialogDescription>Створення нового проекту</DialogDescription>

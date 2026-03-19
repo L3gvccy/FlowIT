@@ -35,8 +35,8 @@ const Tasks = () => {
   const [status, setStatus] = useState("");
   const [complexity, setComplexity] = useState("");
   const [hasAssignment, setHasAssignment] = useState("");
-  const [sortBy, setSortBy] = useState("createdAt");
-  const [sortOrder, setSortOrder] = useState("desc");
+  const [sortBy, setSortBy] = useState("deadline");
+  const [sortOrder, setSortOrder] = useState("asc");
 
   const getTasks = async () => {
     try {
@@ -156,7 +156,7 @@ const Tasks = () => {
         {role !== "EMPLOYEE" && (
           <>
             <button
-              className={`rounded-xl px-3 py-2 transition-all duration-300 ${
+              className={`rounded-xl px-3 py-2 transition-all duration-300 cursor-pointer ${
                 activeTab === "all" ? "bg-violet-600 text-white" : "bg-zinc-100"
               }`}
               onClick={() => setActiveTab("all")}
@@ -164,7 +164,7 @@ const Tasks = () => {
               Всі задачі
             </button>
             <button
-              className={`rounded-xl px-3 py-2 transition-all duration-300 ${
+              className={`rounded-xl px-3 py-2 transition-all duration-300 cursor-pointer ${
                 activeTab === "my" ? "bg-violet-600 text-white" : "bg-zinc-100"
               }`}
               onClick={() => setActiveTab("my")}
@@ -222,7 +222,7 @@ const Tasks = () => {
             onChange={(e) => setHasAssignment(e.target.value)}
             className="rounded-xl bg-white px-3 py-2 outline-0"
           >
-            <option value="">Всі</option>
+            <option value="">Всі призначення</option>
             <option value="true">Призначені</option>
             <option value="false">Без виконавця</option>
           </select>
@@ -232,8 +232,8 @@ const Tasks = () => {
             onChange={(e) => setSortBy(e.target.value)}
             className="rounded-xl bg-white px-3 py-2 outline-0"
           >
-            <option value="createdAt">За датою створення</option>
             <option value="deadline">За дедлайном</option>
+            <option value="createdAt">За датою створення</option>
             <option value="title">За назвою</option>
             <option value="complexity">За складністю</option>
           </select>
@@ -243,14 +243,14 @@ const Tasks = () => {
             onChange={(e) => setSortOrder(e.target.value)}
             className="rounded-xl bg-white px-3 py-2 outline-0"
           >
-            <option value="desc">Спочатку новіші</option>
-            <option value="asc">Спочатку старіші</option>
+            <option value="asc">За зростанням</option>
+            <option value="desc">За спаданням</option>
           </select>
         </div>
 
         <div className="flex items-center gap-2">
           <button
-            className={`rounded-xl px-3 py-2 transition-all duration-300 ${
+            className={`rounded-xl px-3 py-2 transition-all duration-300 cursor-pointer ${
               viewMode === "list" ? "bg-violet-600 text-white" : "bg-white"
             }`}
             onClick={() => setViewMode("list")}
@@ -258,7 +258,7 @@ const Tasks = () => {
             Список
           </button>
           <button
-            className={`rounded-xl px-3 py-2 transition-all duration-300 ${
+            className={`rounded-xl px-3 py-2 transition-all duration-300 cursor-pointer ${
               viewMode === "board" ? "bg-violet-600 text-white" : "bg-white"
             }`}
             onClick={() => setViewMode("board")}

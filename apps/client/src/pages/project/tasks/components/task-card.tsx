@@ -14,10 +14,31 @@ interface Props {
 }
 
 const TaskCard = ({ projectId, task }: Props) => {
+  const getBG = () => {
+    if (!task.assignment) {
+      return "bg-zinc-100 hover:bg-zinc-200";
+    }
+    switch (task.assignment.status) {
+      case "CREATED":
+        return "bg-sky-100 hover:bg-sky-200";
+      case "IN_PROGRESS":
+        return "bg-amber-100 hover:bg-amber-200";
+      case "SUBMITTED":
+        return "bg-violet-100 hover:bg-violet-200";
+      case "APPROVED":
+        return "bg-emerald-100 hover:bg-emerald-200";
+      case "REJECTED":
+        return "bg-rose-100 hover:bg-rose-200";
+      case "CANCELLED":
+        return "bg-zinc-200 hover:bg-zinc-300";
+      default:
+        return "bg-zinc-100 hover:bg-zinc-200";
+    }
+  };
   return (
     <Link
       to={`/projects/${projectId}/tasks/${task.id}`}
-      className="flex flex-col gap-2 rounded-xl bg-zinc-100 p-3 hover:bg-zinc-200 transition-all duration-300"
+      className={`flex flex-col gap-2 p-3 rounded-xl transition-all duration-300 ${getBG()}`}
     >
       <div className="flex flex-col gap-1">
         <p className="font-semibold line-clamp-2">{task.title}</p>
