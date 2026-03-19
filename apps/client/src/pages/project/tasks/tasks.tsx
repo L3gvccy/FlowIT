@@ -97,6 +97,54 @@ const Tasks = () => {
     };
   }, [tasks]);
 
+  const boardColumns = useMemo(() => {
+    const columns = [
+      {
+        key: "CREATED",
+        title: "Створено",
+        tasks: groupedTasks.CREATED,
+      },
+      {
+        key: "IN_PROGRESS",
+        title: "В процесі",
+        tasks: groupedTasks.IN_PROGRESS,
+      },
+      {
+        key: "SUBMITTED",
+        title: "Надіслано",
+        tasks: groupedTasks.SUBMITTED,
+      },
+      {
+        key: "APPROVED",
+        title: "Підтверджено",
+        tasks: groupedTasks.APPROVED,
+      },
+      {
+        key: "REJECTED",
+        title: "Відхилено",
+        tasks: groupedTasks.REJECTED,
+      },
+      {
+        key: "CANCELLED",
+        title: "Скасовано",
+        tasks: groupedTasks.CANCELLED,
+      },
+    ];
+
+    if (activeTab === "all") {
+      return [
+        {
+          key: "UNASSIGNED",
+          title: "Без виконавця",
+          tasks: groupedTasks.UNASSIGNED,
+        },
+        ...columns,
+      ];
+    }
+
+    return columns;
+  }, [activeTab, groupedTasks]);
+
   return (
     <div className="flex flex-col gap-4 p-3 w-full rounded-xl shadow-md">
       <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -200,26 +248,24 @@ const Tasks = () => {
           </select>
         </div>
 
-        {activeTab === "my" && (
-          <div className="flex items-center gap-2">
-            <button
-              className={`rounded-xl px-3 py-2 transition-all duration-300 ${
-                viewMode === "list" ? "bg-violet-600 text-white" : "bg-white"
-              }`}
-              onClick={() => setViewMode("list")}
-            >
-              Список
-            </button>
-            <button
-              className={`rounded-xl px-3 py-2 transition-all duration-300 ${
-                viewMode === "board" ? "bg-violet-600 text-white" : "bg-white"
-              }`}
-              onClick={() => setViewMode("board")}
-            >
-              Дошка
-            </button>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          <button
+            className={`rounded-xl px-3 py-2 transition-all duration-300 ${
+              viewMode === "list" ? "bg-violet-600 text-white" : "bg-white"
+            }`}
+            onClick={() => setViewMode("list")}
+          >
+            Список
+          </button>
+          <button
+            className={`rounded-xl px-3 py-2 transition-all duration-300 ${
+              viewMode === "board" ? "bg-violet-600 text-white" : "bg-white"
+            }`}
+            onClick={() => setViewMode("board")}
+          >
+            Дошка
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -230,49 +276,15 @@ const Tasks = () => {
         <div className="flex justify-center py-10">
           <p className="opacity-70">Задач не знайдено</p>
         </div>
-      ) : activeTab === "my" && viewMode === "board" ? (
+      ) : viewMode === "board" ? (
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-          <TaskBoardColumn title="Без виконавця">
-            {groupedTasks.UNASSIGNED.map((task) => (
-              <TaskCard key={task.id} projectId={project.id} task={task} />
-            ))}
-          </TaskBoardColumn>
-
-          <TaskBoardColumn title="Створено">
-            {groupedTasks.CREATED.map((task) => (
-              <TaskCard key={task.id} projectId={project.id} task={task} />
-            ))}
-          </TaskBoardColumn>
-
-          <TaskBoardColumn title="В процесі">
-            {groupedTasks.IN_PROGRESS.map((task) => (
-              <TaskCard key={task.id} projectId={project.id} task={task} />
-            ))}
-          </TaskBoardColumn>
-
-          <TaskBoardColumn title="Надіслано">
-            {groupedTasks.SUBMITTED.map((task) => (
-              <TaskCard key={task.id} projectId={project.id} task={task} />
-            ))}
-          </TaskBoardColumn>
-
-          <TaskBoardColumn title="Підтверджено">
-            {groupedTasks.APPROVED.map((task) => (
-              <TaskCard key={task.id} projectId={project.id} task={task} />
-            ))}
-          </TaskBoardColumn>
-
-          <TaskBoardColumn title="Відхилено">
-            {groupedTasks.REJECTED.map((task) => (
-              <TaskCard key={task.id} projectId={project.id} task={task} />
-            ))}
-          </TaskBoardColumn>
-
-          <TaskBoardColumn title="Скасовано">
-            {groupedTasks.CANCELLED.map((task) => (
-              <TaskCard key={task.id} projectId={project.id} task={task} />
-            ))}
-          </TaskBoardColumn>
+          {boardColumns.map((column) => (
+            <TaskBoardColumn key={column.key} title={column.title}>
+              {column.tasks.map((task) => (
+                <TaskCard key={task.id} projectId={project.id} task={task} />
+              ))}
+            </TaskBoardColumn>
+          ))}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

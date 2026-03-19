@@ -2,17 +2,39 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import type { ProjectOutletContext } from "../types/project-outlet-context";
 import { apiClient } from "@/utils/api-client";
-import type { IAssignTaskResponse, TaskInterface } from "@flowit/shared";
+import type {
+  IAssignTaskResponse,
+  TaskInterface,
+  UpdateAssignmentStatusResponse,
+} from "@flowit/shared";
 import {
   assignmentStatusList,
   complexityList,
   getFullName,
 } from "@/utils/tools";
-import { CalendarDays, MessageSquareMore, Pencil, User2 } from "lucide-react";
+import { CalendarDays, MessageSquareMore, Pencil, Trash2 } from "lucide-react";
 import dayjs from "dayjs";
 import TaskAttchment from "@/components/project-attachment";
-import { GET_TASK_URL } from "@/utils/constants";
+import {
+  DELETE_ASSIGNMENT_URL,
+  DELETE_TASK_URL,
+  GET_TASK_URL,
+} from "@/utils/constants";
 import AssignTaskDialog from "./components/assign-task-dialog";
+import UserAvatar from "@/components/user-avatar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import ChangeAssignmentStatusDialog from "./components/change-assignment-status-dialog";
 
 const Task = () => {
   const { taskId } = useParams();
@@ -22,6 +44,8 @@ const Task = () => {
   const [task, setTask] = useState<TaskInterface | null>(null);
   const [editable, setEditable] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [deleting, setDeleting] = useState(false);
+  const [deletingAssignment, setDeletingAssignment] = useState(false);
 
   const getTask = async () => {
     if (!taskId) return;
@@ -41,6 +65,50 @@ const Task = () => {
 
   const handleAssigned = async (_response: IAssignTaskResponse) => {
     await getTask();
+  };
+
+  const handleStatusUpdated = async (
+    _response: UpdateAssignmentStatusResponse,
+  ) => {
+    await getTask();
+  };
+
+  const deleteTask = async () => {
+    if (!taskId) return;
+
+    try {
+      setDeleting(true);
+      await apiClient.delete(DELETE_TASK_URL(project.id, taskId));
+      toast.success("Задачу видалено");
+      navigate(`/projects/${project.id}/tasks`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Не вдалося видалити задачу");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const deleteAssignment = async () => {
+    if (!task || !task.assignment?.id) return;
+
+    try {
+      setDeletingAssignment(true);
+
+      await apiClient.delete(DELETE_ASSIGNMENT_URL(task.assignment.id), {
+        withCredentials: true,
+      });
+
+      toast.success("Призначення видалено");
+      await getTask();
+    } catch (err: any) {
+      console.error(err);
+      toast.error(
+        err.response?.data?.message || "Не вдалося видалити призначення",
+      );
+    } finally {
+      setDeletingAssignment(false);
+    }
   };
 
   useEffect(() => {
@@ -87,11 +155,56 @@ const Task = () => {
             <AssignTaskDialog taskId={taskId} onAssigned={handleAssigned} />
           )}
 
+          {task.assignment && (
+            <ChangeAssignmentStatusDialog
+              assignmentId={task.assignment.id}
+              currentStatus={task.assignment.status}
+              onUpdated={handleStatusUpdated}
+            />
+          )}
+
           {editable && (
-            <button className="flex items-center gap-2 rounded-xl bg-zinc-100 px-3 py-2 hover:bg-zinc-200 transition-all duration-300 cursor-pointer">
-              <Pencil size={16} />
-              Редагувати
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                className="flex items-center gap-2 rounded-xl bg-zinc-100 px-3 py-2 hover:bg-zinc-200 transition cursor-pointer"
+                onClick={() =>
+                  navigate(`/projects/${project.id}/tasks/${task.id}/edit`)
+                }
+              >
+                <Pencil size={16} />
+                Редагувати
+              </button>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button className="flex items-center gap-2 rounded-xl bg-red-100 text-red-700 px-3 py-2 hover:bg-red-200 transition cursor-pointer">
+                    <Trash2 size={16} />
+                    Видалити
+                  </button>
+                </AlertDialogTrigger>
+
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Видалити завдання?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Цю дію неможливо скасувати. Завдання, вкладення та
+                      пов’язані дані буде видалено.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Скасувати</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={deleteTask}
+                      disabled={deleting}
+                      className="bg-red-600 hover:bg-red-500"
+                    >
+                      {deleting ? "Видалення..." : "Видалити"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           )}
         </div>
       </div>
@@ -111,13 +224,21 @@ const Task = () => {
         {task.assignment ? (
           <>
             <div className="flex items-center gap-2">
-              <User2 size={16} />
-              <p>
-                {getFullName(
-                  task.assignment.employee.user.name,
-                  task.assignment.employee.user.surname,
-                )}
-              </p>
+              <UserAvatar
+                size="md"
+                image={task.assignment.employee.user.image}
+              />
+              <div className="flex flex-col">
+                <p>
+                  {getFullName(
+                    task.assignment.employee.user.name,
+                    task.assignment.employee.user.surname,
+                  )}
+                </p>
+                <p className="text-sm opacity-80">
+                  {task.assignment.employee.user.email}
+                </p>
+              </div>
             </div>
 
             <p className="text-sm">
@@ -129,6 +250,41 @@ const Task = () => {
               <p className="text-sm opacity-70">
                 Завершено: {dayjs(task.assignment.completedAt).format("LLL")}
               </p>
+            )}
+
+            {editable && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button className="flex items-center w-fit gap-2 rounded-xl bg-red-100 text-red-700 px-3 py-2 hover:bg-red-200 transition cursor-pointer">
+                    Скасувати призначення
+                  </button>
+                </AlertDialogTrigger>
+
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Видалити призначення?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Виконавець буде відв’язаний від задачі. Після цього задачу
+                      можна буде призначити повторно.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="transition-all duration-300 cursor-pointer">
+                      Скасувати
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={deleteAssignment}
+                      disabled={deletingAssignment}
+                      className="bg-red-600 hover:bg-red-500 transition-all duration-300 cursor-pointer"
+                    >
+                      {deletingAssignment
+                        ? "Видалення..."
+                        : "Видалити призначення"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
           </>
         ) : (

@@ -46,12 +46,24 @@ export const TASKS_URL = `${API_URL}/tasks`;
 export const CREATE_TASK_URL = `${TASKS_URL}/create`;
 export const GET_TASK_URL = (projectId: string, taskId: string) =>
   `${TASKS_URL}/get/${projectId}/${taskId}`;
+export const UPDATE_TASK_URL = (projectId: string, taskId: string) =>
+  `${TASKS_URL}/update/${projectId}/${taskId}`;
+export const DELETE_TASK_URL = (projectId: string, taskId: string) =>
+  `${TASKS_URL}/delete/${projectId}/${taskId}`;
 export const GET_TASKS_URL = (projectId: string, params?: string) =>
   `${TASKS_URL}/get-tasks/${projectId}${params ? `?${params}` : ""}`;
 export const GET_TASK_CANDIDATES_URL = (taskId: string) =>
   `${TASKS_URL}/${taskId}/candidates`;
 export const ASSIGN_TASK_URL = (taskId: string, employeeId: string) =>
   `${TASKS_URL}/${taskId}/assign/${employeeId}`;
+
+export const ASSIGNMENT_URL = `${API_URL}/assignment`;
+export const GET_AVAILABLE_ASSIGNMENT_STATUSES_URL = (assignmentId: string) =>
+  `${ASSIGNMENT_URL}/${assignmentId}/available-statuses`;
+export const UPDATE_ASSIGNMENT_STATUS_URL = (assignmentId: string) =>
+  `${ASSIGNMENT_URL}/${assignmentId}/status`;
+export const DELETE_ASSIGNMENT_URL = (assignmentId: string) =>
+  `${ASSIGNMENT_URL}/${assignmentId}`;
 
 export const FILES_URL = `${API_URL}/files`;
 export const UPLOAD_FILE_URL = `${FILES_URL}/upload`;

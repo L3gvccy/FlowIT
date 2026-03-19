@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -57,5 +59,22 @@ export class TasksController {
     @Param("employeeId") employeeId: string,
   ) {
     return this.tasksService.assignTask(taskId, employeeId);
+  }
+
+  @Patch("update/:projectId/:taskId")
+  async updateTask(
+    @Param("projectId") projectId: string,
+    @Param("taskId") taskId: string,
+    @Body() dto: CreateTaskDto,
+  ) {
+    return this.tasksService.updateTask(projectId, taskId, dto);
+  }
+
+  @Delete("delete/:projectId/:taskId")
+  async deleteTask(
+    @Param("projectId") projectId: string,
+    @Param("taskId") taskId: string,
+  ) {
+    return this.tasksService.deleteTask(projectId, taskId);
   }
 }

@@ -120,6 +120,81 @@ export class TasksService {
     return { task, editable };
   }
 
+  async updateTask(projectId: string, taskId: string, dto: CreateTaskDto) {
+    const task = await this.prisma.task.findFirst({
+      where: { id: taskId, projectId },
+      include: { taskSkills: true, attachments: true },
+    });
+
+    if (!task) {
+      throw new NotFoundException("Задача не знайдена");
+    }
+
+    await this.prisma.task.update({
+      where: { id: taskId },
+      data: {
+        title: dto.title,
+        description: dto.description,
+        complexity: dto.complexity,
+        deadline: dto.deadline,
+      },
+    });
+
+    await this.prisma.taskSkill.deleteMany({
+      where: { taskId },
+    });
+
+    await this.prisma.taskSkill.createMany({
+      data: dto.skills.map((skill) => ({
+        taskId,
+        skillId: skill.id,
+      })),
+    });
+
+    await this.prisma.taskAttachment.deleteMany({
+      where: { taskId },
+    });
+
+    await this.prisma.taskAttachment.createMany({
+      data: dto.attachments.map((attachment) => ({
+        taskId,
+        fileName: attachment.fileName,
+        fileUrl: attachment.fileUrl,
+      })),
+    });
+
+    const updatedTask = await this.prisma.task.findUnique({
+      where: { id: taskId },
+      include: {
+        taskSkills: { include: { skill: true } },
+        attachments: true,
+      },
+    });
+
+    return {
+      message: "Задача успішно оновлена",
+      task: updatedTask,
+    };
+  }
+
+  async deleteTask(projectId: string, taskId: string) {
+    const task = await this.prisma.task.findFirst({
+      where: { id: taskId, projectId },
+    });
+
+    if (!task) {
+      throw new NotFoundException("Задача не знайдена");
+    }
+
+    await this.prisma.task.delete({
+      where: { id: taskId },
+    });
+
+    return {
+      message: "Задача успішно видалена",
+    };
+  }
+
   async getTasks(userId: string, projectId: string, query: any) {
     const employee = await this.prisma.employee.findUnique({
       where: { userId_projectId: { userId, projectId } },
@@ -138,7 +213,9 @@ export class TasksService {
 
     if (mode === "my") {
       where.assignment = {
-        employeeId: employee.id,
+        is: {
+          employeeId: employee.id,
+        },
       };
     }
 
@@ -151,8 +228,10 @@ export class TasksService {
 
     if (query.status) {
       where.assignment = {
-        ...(where.assignment || {}),
-        status: query.status as AssignmentStatus,
+        is: {
+          ...(where.assignment?.is || {}),
+          status: query.status as AssignmentStatus,
+        },
       };
     }
 
@@ -161,14 +240,23 @@ export class TasksService {
     }
 
     if (query.hasAssignment === "true") {
-      where.assignment = {
-        ...(where.assignment || {}),
-        isNot: null,
-      };
+      if (where.assignment?.is) {
+        where.assignment = {
+          is: {
+            ...where.assignment.is,
+          },
+        };
+      } else {
+        where.assignment = {
+          isNot: null,
+        };
+      }
     }
 
     if (query.hasAssignment === "false") {
-      where.assignment = null;
+      where.assignment = {
+        is: null,
+      };
     }
 
     const orderBy = this.getOrderBy(query.sortBy, query.sortOrder);

@@ -11,3 +11,13 @@ export interface CreateTaskDto {
   skills: SkillInterface[];
   attachments: AttachmentInterface[];
 }
+
+export interface UpdateTaskDto {
+  projectId: string;
+  title: string;
+  description: string;
+  complexity: number;
+  deadline: Date;
+  skills: SkillInterface[];
+  attachments: AttachmentInterface[];
+}
