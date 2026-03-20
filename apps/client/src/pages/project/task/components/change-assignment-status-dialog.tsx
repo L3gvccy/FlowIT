@@ -13,9 +13,8 @@ import type {
 } from "@flowit/shared";
 import { assignmentStatusList } from "@/utils/tools";
 import { toast } from "sonner";
-import { FilePlus } from "lucide-react";
+import { CircleFadingArrowUp, FilePlus } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -171,8 +170,9 @@ const ChangeAssignmentStatusDialog = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="flex px-3 py-2 gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white transition-all duration-300 cursor-pointer">
-          Змінити статус
+        <button className="flex items-center px-3 py-2 gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white transition-all duration-300 cursor-pointer">
+          <CircleFadingArrowUp size={16} />
+          <p>Змінити статус</p>
         </button>
       </DialogTrigger>
 

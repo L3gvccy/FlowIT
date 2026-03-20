@@ -36,6 +36,7 @@ import {
 import { toast } from "sonner";
 import ChangeAssignmentStatusDialog from "./components/change-assignment-status-dialog";
 import AssignmentUpdate from "./components/assignment-update";
+import MessageBar from "./components/message-bar";
 
 const Task = () => {
   const { taskId } = useParams();
@@ -218,6 +219,45 @@ const Task = () => {
         </p>
       </div>
 
+      {/* ATTACHMENTS */}
+      <div className="flex flex-col gap-2 border-b pb-3">
+        <p className="font-semibold">Файли</p>
+
+        {task.attachments?.length > 0 ? (
+          <div className="flex flex-wrap gap-3">
+            {task.attachments.map((attachment) => (
+              <TaskAttchment
+                key={attachment.fileUrl}
+                fileName={attachment.fileName}
+                fileUrl={attachment.fileUrl}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="opacity-70">Немає файлів</p>
+        )}
+      </div>
+
+      {/* SKILLS */}
+      <div className="flex flex-col gap-2 border-b pb-3">
+        <p className="font-semibold">Скіли</p>
+
+        {task.taskSkills?.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {task.taskSkills.map((taskSkill) => (
+              <div
+                key={taskSkill.skill.id}
+                className="bg-zinc-100 px-3 py-1 rounded-xl text-sm"
+              >
+                {taskSkill.skill.name}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="opacity-70">Немає</p>
+        )}
+      </div>
+
       {/* ASSIGNMENT */}
       <div className="flex flex-col gap-2 border-b pb-3">
         <p className="font-semibold">Призначення</p>
@@ -293,47 +333,18 @@ const Task = () => {
         )}
       </div>
 
-      {/* SKILLS */}
-      <div className="flex flex-col gap-2 border-b pb-3">
-        <p className="font-semibold">Скіли</p>
-
-        {task.taskSkills?.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {task.taskSkills.map((taskSkill) => (
-              <div
-                key={taskSkill.skill.id}
-                className="bg-zinc-100 px-3 py-1 rounded-xl text-sm"
-              >
-                {taskSkill.skill.name}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="opacity-70">Немає</p>
-        )}
-      </div>
-
-      {/* ATTACHMENTS */}
-      <div className="flex flex-col gap-2 border-b pb-3">
-        <p className="font-semibold">Файли</p>
-
-        {task.attachments?.length > 0 ? (
-          <div className="flex flex-wrap gap-3">
-            {task.attachments.map((attachment) => (
-              <TaskAttchment
-                key={attachment.fileUrl}
-                fileName={attachment.fileName}
-                fileUrl={attachment.fileUrl}
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="opacity-70">Немає файлів</p>
-        )}
-      </div>
+      {/* STATUS HISTORY */}
+      {task.assignment && task.assignment?.statusUpdates?.length > 0 && (
+        <div className="flex flex-col gap-3 border-b pb-3">
+          <p className="font-semibold">Історія</p>
+          {task.assignment.statusUpdates.map((update) => (
+            <AssignmentUpdate update={update} />
+          ))}
+        </div>
+      )}
 
       {/* MESSAGES */}
-      <div className="flex flex-col gap-3 border-b pb-3">
+      <div className="flex flex-col gap-3 ">
         <div className="flex items-center gap-2">
           <MessageSquareMore size={16} />
           <p className="font-semibold">Повідомлення</p>
@@ -376,17 +387,9 @@ const Task = () => {
         ) : (
           <p className="opacity-70">Немає повідомлень</p>
         )}
-      </div>
 
-      {/* STATUS HISTORY */}
-      {task.assignment && task.assignment?.statusUpdates?.length > 0 && (
-        <div className="flex flex-col gap-3">
-          <p className="font-semibold">Історія</p>
-          {task.assignment.statusUpdates.map((update) => (
-            <AssignmentUpdate update={update} />
-          ))}
-        </div>
-      )}
+        <MessageBar taskId={task.id} />
+      </div>
     </div>
   );
 };
