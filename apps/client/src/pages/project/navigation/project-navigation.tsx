@@ -11,7 +11,7 @@ const ProjectNavigation = ({
   role?: employeeRole;
 }) => {
   return (
-    <div className="flex flex-col w-full p-2 rounded-xl shadow-md md:max-w-72 h-fit">
+    <div className="flex flex-col gap-1 w-full p-2 rounded-xl shadow-md md:max-w-62 h-fit">
       <ProjectNavLink to={`/projects/${projectId}`} end>
         <Info />
         <p>Інформація</p>

@@ -14,7 +14,7 @@ const ProjectNavLink = ({
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `flex items-center text-md font-medium rounded-xl w-full gap-2 p-2 ${isActive ? "text-violet-600 bg-violet-300" : "text-zinc-900 hover:text-zinc-800"} transition-all duration-300`
+        `flex items-center text-md font-medium rounded-xl w-full gap-2 p-2 ${isActive ? "text-violet-600 bg-violet-300 hover:bg-violet-200" : "text-zinc-900 hover:text-zinc-800 hover:bg-zinc-100"} transition-all duration-300`
       }
       end={end}
     >
