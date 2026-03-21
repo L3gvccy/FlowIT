@@ -2,6 +2,7 @@ import type { AttachmentInterface } from "./attachment";
 import type { TaskSkillInterface } from "./task-skill";
 import type { AssignmentInterface } from "./assignments";
 import type { TaskMessageInterface } from "./task-message";
+import { ProjectInterface } from "./project";
 
 export interface TaskInterface {
   id: string;
@@ -14,6 +15,7 @@ export interface TaskInterface {
   attachments: AttachmentInterface[];
   assignment: AssignmentInterface | null;
   messages: TaskMessageInterface[];
+  project?: ProjectInterface;
   createdAt: string;
   updatedAt: string;
 }

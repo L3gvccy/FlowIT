@@ -58,6 +58,8 @@ export const ASSIGN_TASK_URL = (taskId: string, employeeId: string) =>
   `${TASKS_URL}/${taskId}/assign/${employeeId}`;
 export const SEND_TASK_MESSAGE_URL = (taskId: string, projectId: string) =>
   `${TASKS_URL}/send-message/${projectId}/${taskId}`;
+export const GET_MY_TASKS_URL = (params?: string) =>
+  `${TASKS_URL}/get-my-tasks${params ? `?${params}` : ""}`;
 
 export const ASSIGNMENT_URL = `${API_URL}/assignment`;
 export const GET_AVAILABLE_ASSIGNMENT_STATUSES_URL = (assignmentId: string) =>

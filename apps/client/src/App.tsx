@@ -28,6 +28,7 @@ import Task from "./pages/project/task/task";
 import EmployeePage from "./pages/project/employee/employee";
 import Employees from "./pages/project/employee/employees";
 import EditTask from "./pages/project/tasks/components/edit-task";
+import MyTasks from "./pages/tasks/my-tasks";
 
 const PrivateRoute = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
@@ -137,6 +138,15 @@ function App() {
             <Route path="employees" element={<Employees />} />
             <Route path="employees/:employeeId" element={<EmployeePage />} />
           </Route>
+
+          <Route
+            path="/tasks"
+            element={
+              <PrivateRoute>
+                <MyTasks />
+              </PrivateRoute>
+            }
+          />
         </Route>
 
         <Route

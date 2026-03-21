@@ -97,4 +97,13 @@ export class TasksController {
       dto,
     );
   }
+
+  @Get("get-my-tasks")
+  @UseGuards(JwtAuthGuard)
+  async getMyTasks(
+    @CurrentUser() currentUser: { id: string },
+    @Query() query: any,
+  ) {
+    return this.tasksService.getMyTasks(currentUser.id, query);
+  }
 }

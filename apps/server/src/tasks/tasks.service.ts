@@ -635,4 +635,90 @@ export class TasksService {
 
     return { message };
   }
+
+  async getMyTasks(userId: string, query: any) {
+    const employees = await this.prisma.employee.findMany({
+      where: { userId },
+    });
+    const employeeIds = employees.map((e) => e.id);
+
+    const where: any = {
+      assignment: { employee: { id: { in: employeeIds } } },
+    };
+
+    if (query.search) {
+      where.OR = [
+        { title: { contains: query.search, mode: "insensitive" } },
+        { description: { contains: query.search, mode: "insensitive" } },
+      ];
+    }
+
+    if (query.status) {
+      where.assignment = {
+        is: {
+          ...(where.assignment?.is || {}),
+          status: query.status as AssignmentStatus,
+        },
+      };
+    }
+
+    if (query.complexity) {
+      where.complexity = Number(query.complexity);
+    }
+
+    if (query.hasAssignment === "true") {
+      if (where.assignment?.is) {
+        where.assignment = {
+          is: {
+            ...where.assignment.is,
+          },
+        };
+      } else {
+        where.assignment = {
+          isNot: null,
+        };
+      }
+    }
+
+    if (query.hasAssignment === "false") {
+      where.assignment = {
+        is: null,
+      };
+    }
+
+    const orderBy = this.getOrderBy(query.sortBy, query.sortOrder);
+
+    const tasks = await this.prisma.task.findMany({
+      where,
+      include: {
+        taskSkills: {
+          include: {
+            skill: true,
+          },
+        },
+        attachments: true,
+        assignment: {
+          include: {
+            employee: {
+              include: {
+                user: true,
+              },
+            },
+            statusUpdates: {
+              include: {
+                attachments: true,
+              },
+              orderBy: {
+                timestamp: "desc",
+              },
+            },
+          },
+        },
+        project: true,
+      },
+      orderBy,
+    });
+
+    return { tasks };
+  }
 }
