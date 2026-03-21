@@ -1,20 +1,17 @@
 import { apiClient } from "@/utils/api-client";
-import { UPLOAD_FILE_URL } from "@/utils/constants";
-import {
-  FileIcon,
-  FilePlusCorner,
-  Send,
-  SendHorizonal,
-  XIcon,
-} from "lucide-react";
+import { SEND_TASK_MESSAGE_URL, UPLOAD_FILE_URL } from "@/utils/constants";
+import type { SendMessageDto, TaskMessageInterface } from "@flowit/shared";
+import { FileIcon, FilePlusCorner, SendHorizonal, XIcon } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 interface Props {
   taskId: string;
+  projectId: string;
+  onMessageSent: (message: TaskMessageInterface) => void;
 }
 
-const MessageBar = ({ taskId }: Props) => {
+const MessageBar = ({ taskId, projectId, onMessageSent }: Props) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [message, setMessage] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -25,6 +22,26 @@ const MessageBar = ({ taskId }: Props) => {
   const sendMessage = async () => {
     if ((!message && !file) || uploading) return;
     console.log("Message sent");
+
+    try {
+      const data: SendMessageDto = {
+        content: message,
+        fileName,
+        fileUrl,
+      };
+      const res = await apiClient.post(
+        SEND_TASK_MESSAGE_URL(taskId, projectId),
+        data,
+      );
+      const messageRes = res.data.message;
+      onMessageSent(messageRes);
+      setMessage("");
+      setFileUrl("");
+      setFileName("");
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+      console.error(error);
+    }
   };
 
   const uploadFile = async () => {
@@ -125,6 +142,9 @@ const MessageBar = ({ taskId }: Props) => {
         </div>
         <button
           disabled={(!message && !file) || uploading}
+          onClick={() => {
+            sendMessage();
+          }}
           className="flex items-center justify-center rounded-full h-full aspect-square text-white bg-violet-600 hover:bg-violet-500 disabled:bg-violet-900 disabled:cursor-not-allowed transition-all duration-300 cursor-pointer"
         >
           <SendHorizonal size={20} />

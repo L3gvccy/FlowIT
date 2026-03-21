@@ -12,7 +12,7 @@ import {
 import { TasksService } from "./tasks.service";
 import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 import { CurrentUser } from "src/common/decorators/current-user.decorator";
-import type { CreateTaskDto } from "@flowit/shared";
+import type { CreateTaskDto, SendMessageDto } from "@flowit/shared";
 
 @Controller("tasks")
 export class TasksController {
@@ -49,11 +49,13 @@ export class TasksController {
 
   // Assignments
   @Get(":taskId/candidates")
+  @UseGuards(JwtAuthGuard)
   async getTaskCandidates(@Param("taskId") taskId: string) {
     return this.tasksService.getTaskCandidates(taskId);
   }
 
   @Post(":taskId/assign/:employeeId")
+  @UseGuards(JwtAuthGuard)
   async assignTask(
     @Param("taskId") taskId: string,
     @Param("employeeId") employeeId: string,
@@ -62,6 +64,7 @@ export class TasksController {
   }
 
   @Patch("update/:projectId/:taskId")
+  @UseGuards(JwtAuthGuard)
   async updateTask(
     @Param("projectId") projectId: string,
     @Param("taskId") taskId: string,
@@ -71,10 +74,27 @@ export class TasksController {
   }
 
   @Delete("delete/:projectId/:taskId")
+  @UseGuards(JwtAuthGuard)
   async deleteTask(
     @Param("projectId") projectId: string,
     @Param("taskId") taskId: string,
   ) {
     return this.tasksService.deleteTask(projectId, taskId);
+  }
+
+  @Post("send-message/:projectId/:taskId")
+  @UseGuards(JwtAuthGuard)
+  async sendMessage(
+    @CurrentUser() currentUser: { id: string },
+    @Param("projectId") projectId: string,
+    @Param("taskId") taskId: string,
+    @Body() dto: SendMessageDto,
+  ) {
+    return this.tasksService.sendMessage(
+      currentUser.id,
+      projectId,
+      taskId,
+      dto,
+    );
   }
 }

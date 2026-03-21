@@ -5,6 +5,7 @@ import { apiClient } from "@/utils/api-client";
 import type {
   IAssignTaskResponse,
   TaskInterface,
+  TaskMessageInterface,
   UpdateAssignmentStatusResponse,
 } from "@flowit/shared";
 import {
@@ -37,10 +38,11 @@ import { toast } from "sonner";
 import ChangeAssignmentStatusDialog from "./components/change-assignment-status-dialog";
 import AssignmentUpdate from "./components/assignment-update";
 import MessageBar from "./components/message-bar";
+import TaskMessage from "./components/task-message";
 
 const Task = () => {
   const { taskId } = useParams();
-  const { project } = useOutletContext<ProjectOutletContext>();
+  const { project, employee } = useOutletContext<ProjectOutletContext>();
   const navigate = useNavigate();
 
   const [task, setTask] = useState<TaskInterface | null>(null);
@@ -111,6 +113,17 @@ const Task = () => {
     } finally {
       setDeletingAssignment(false);
     }
+  };
+
+  const onMessageSent = (message: TaskMessageInterface) => {
+    setTask((prev) => {
+      if (!prev) return prev;
+
+      return {
+        ...prev,
+        messages: [...prev.messages, message],
+      };
+    });
   };
 
   useEffect(() => {
@@ -352,43 +365,48 @@ const Task = () => {
 
         {task.messages?.length > 0 ? (
           task.messages.map((message) => (
-            <div
-              key={message.id}
-              className="bg-zinc-100 rounded-xl p-3 flex flex-col gap-2"
-            >
-              <div className="flex justify-between text-sm">
-                <p className="font-medium">
-                  {getFullName(
-                    message.employee.user.name,
-                    message.employee.user.surname,
-                  )}
-                </p>
-                <p className="opacity-60">
-                  {dayjs(message.timestamp).format("LLL")}
-                </p>
-              </div>
+            <TaskMessage employeeId={employee.id} message={message} />
+            // <div
+            //   key={message.id}
+            //   className="bg-zinc-100 rounded-xl p-3 flex flex-col gap-2"
+            // >
+            //   <div className="flex justify-between text-sm">
+            //     <p className="font-medium">
+            //       {getFullName(
+            //         message.employee.user.name,
+            //         message.employee.user.surname,
+            //       )}
+            //     </p>
+            //     <p className="opacity-60">
+            //       {dayjs(message.timestamp).format("L LT")}
+            //     </p>
+            //   </div>
 
-              {message.content && (
-                <p className="whitespace-pre-wrap">{message.content}</p>
-              )}
+            //   {message.content && (
+            //     <p className="whitespace-pre-wrap">{message.content}</p>
+            //   )}
 
-              {message.fileUrl && (
-                <a
-                  href={message.fileUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-sm underline opacity-80"
-                >
-                  {message.fileName || "Файл"}
-                </a>
-              )}
-            </div>
+            //   {message.fileUrl && (
+            //     <a
+            //       href={message.fileUrl}
+            //       target="_blank"
+            //       rel="noreferrer"
+            //       className="text-sm underline opacity-80"
+            //     >
+            //       {message.fileName || "Файл"}
+            //     </a>
+            //   )}
+            // </div>
           ))
         ) : (
           <p className="opacity-70">Немає повідомлень</p>
         )}
 
-        <MessageBar taskId={task.id} />
+        <MessageBar
+          taskId={task.id}
+          projectId={project.id}
+          onMessageSent={onMessageSent}
+        />
       </div>
     </div>
   );

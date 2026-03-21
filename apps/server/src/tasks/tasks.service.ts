@@ -2,6 +2,7 @@ import {
   CreateTaskDto,
   IAssignTaskResponse,
   ITaskCandidatesResponse,
+  SendMessageDto,
 } from "@flowit/shared";
 import {
   BadRequestException,
@@ -111,7 +112,7 @@ export class TasksService {
             },
           },
           orderBy: {
-            timestamp: "desc",
+            timestamp: "asc",
           },
         },
       },
@@ -597,5 +598,41 @@ export class TasksService {
       .reduce((sum, assignment) => {
         return sum + this.estimateTaskTime(assignment.task.complexity);
       }, 0);
+  }
+
+  async sendMessage(
+    userId: string,
+    projectId: string,
+    taskId: string,
+    dto: SendMessageDto,
+  ) {
+    const employee = await this.prisma.employee.findUnique({
+      where: { userId_projectId: { userId, projectId } },
+    });
+
+    if (!employee) {
+      throw new ForbiddenException("Дія заборонена");
+    }
+
+    const task = await this.prisma.task.findUnique({ where: { id: taskId } });
+
+    if (!task) {
+      throw new NotFoundException("Задача не знайдена");
+    }
+
+    const message = await this.prisma.taskMessage.create({
+      data: {
+        authorId: employee.id,
+        taskId,
+        content: dto?.content,
+        fileName: dto?.fileName,
+        fileUrl: dto?.fileUrl,
+      },
+      include: {
+        employee: { include: { user: true } },
+      },
+    });
+
+    return { message };
   }
 }
