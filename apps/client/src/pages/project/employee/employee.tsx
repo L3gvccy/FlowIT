@@ -2,16 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import type { ProjectOutletContext } from "../types/project-outlet-context";
 import { apiClient } from "@/utils/api-client";
-import { EMPLOYEE_URL, GET_EMPLOYEE_URL } from "@/utils/constants";
-import type { EmployeeInterface, AssignmentInterface } from "@flowit/shared";
+import { GET_EMPLOYEE_URL } from "@/utils/constants";
+import type {
+  EmployeeInterface,
+  AssignmentInterface,
+  TaskInterface,
+} from "@flowit/shared";
 import UserAvatar from "@/components/user-avatar";
-import dayjs from "dayjs";
-import {
-  assignmentStatusList,
-  complexityList,
-  getFullName,
-} from "@/utils/tools";
-import { Link } from "react-router-dom";
+import { getFullName } from "@/utils/tools";
+import TaskCard from "../tasks/components/task-card";
 
 interface EmployeeDetailsResponse {
   employee: EmployeeInterface & {
@@ -22,6 +21,7 @@ interface EmployeeDetailsResponse {
     overdueTasks: number;
     completedInTimeTasks: number;
   };
+  tasks: TaskInterface[];
   editable: boolean;
 }
 
@@ -120,29 +120,11 @@ const EmployeePage = () => {
 
         {employee.assignments.length > 0 ? (
           employee.assignments.map((assignment) => (
-            <Link
-              key={assignment.id}
-              to={`/projects/${project.id}/tasks/${assignment.task.id}`}
-              className="rounded-xl bg-zinc-100 p-3 flex flex-col gap-2 hover:bg-zinc-200 transition-all duration-300"
-            >
-              <p className="font-semibold">{assignment.task.title}</p>
-              <p className="text-sm opacity-80">
-                {assignment.task.description || "Опис відсутній"}
-              </p>
-              <p className="text-sm">
-                Складність:{" "}
-                {complexityList[assignment.task.complexity] ??
-                  assignment.task.complexity}
-              </p>
-              <p className="text-sm">
-                Статус:{" "}
-                {assignmentStatusList[assignment.status] ?? assignment.status}
-              </p>
-              <p className="text-sm opacity-70">
-                Дедлайн:{" "}
-                {dayjs(assignment.task.deadline).format("DD.MM.YYYY HH:mm")}
-              </p>
-            </Link>
+            <TaskCard
+              projectId={assignment.task.projectId}
+              task={assignment.task}
+              showAssigned={false}
+            />
           ))
         ) : (
           <p className="opacity-70">У працівника немає задач</p>

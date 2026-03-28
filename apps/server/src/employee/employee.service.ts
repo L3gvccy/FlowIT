@@ -201,6 +201,7 @@ export class EmployeeService {
                   },
                 },
                 attachments: true,
+                assignment: true,
               },
             },
             statusUpdates: {

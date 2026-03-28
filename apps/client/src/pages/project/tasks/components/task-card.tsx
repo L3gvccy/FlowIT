@@ -13,9 +13,15 @@ interface Props {
   projectId: string;
   task: TaskInterface;
   showProjectInfo?: boolean;
+  showAssigned?: boolean;
 }
 
-const TaskCard = ({ projectId, task, showProjectInfo = false }: Props) => {
+const TaskCard = ({
+  projectId,
+  task,
+  showProjectInfo = false,
+  showAssigned = true,
+}: Props) => {
   const getBG = () => {
     if (!task.assignment) {
       return "bg-zinc-100 hover:bg-zinc-200";
@@ -67,15 +73,17 @@ const TaskCard = ({ projectId, task, showProjectInfo = false }: Props) => {
 
       {task.assignment && (
         <>
-          <div className="flex items-center gap-2 text-sm opacity-80">
-            <User2 size={16} />
-            <p>
-              {getFullName(
-                task.assignment.employee.user.name,
-                task.assignment.employee.user.surname,
-              )}
-            </p>
-          </div>
+          {showAssigned && (
+            <div className="flex items-center gap-2 text-sm opacity-80">
+              <User2 size={16} />
+              <p>
+                {getFullName(
+                  task.assignment.employee.user.name,
+                  task.assignment.employee.user.surname,
+                )}
+              </p>
+            </div>
+          )}
 
           <p className="text-sm opacity-80">
             {assignmentStatusList[task.assignment.status] ??

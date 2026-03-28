@@ -21,8 +21,8 @@ const MyTasks = () => {
   const [status, setStatus] = useState("");
   const [complexity, setComplexity] = useState("");
   const [hasAssignment, setHasAssignment] = useState("");
-  const [sortBy, setSortBy] = useState("deadline");
-  const [sortOrder, setSortOrder] = useState("asc");
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const getTasks = async () => {
     try {
@@ -171,8 +171,9 @@ const MyTasks = () => {
                 onChange={(e) => setSortBy(e.target.value)}
                 className="rounded-xl bg-white px-3 py-2 outline-0"
               >
-                <option value="deadline">За дедлайном</option>
                 <option value="createdAt">За датою створення</option>
+                <option value="deadline">За дедлайном</option>
+
                 <option value="title">За назвою</option>
                 <option value="complexity">За складністю</option>
               </select>
@@ -182,8 +183,8 @@ const MyTasks = () => {
                 onChange={(e) => setSortOrder(e.target.value)}
                 className="rounded-xl bg-white px-3 py-2 outline-0"
               >
-                <option value="asc">За зростанням</option>
                 <option value="desc">За спаданням</option>
+                <option value="asc">За зростанням</option>
               </select>
             </div>
 
