@@ -9,6 +9,7 @@ export * from "./dto/assign-task.dto";
 export * from "./dto/task-candidates.dto";
 export * from "./dto/update-assignment.dto";
 export * from "./dto/message.dto";
+export * from "./dto/task-risk-response.dto";
 
 export * from "./types/user";
 export * from "./types/user-profile";

@@ -39,6 +39,7 @@ import ChangeAssignmentStatusDialog from "./components/change-assignment-status-
 import AssignmentUpdate from "./components/assignment-update";
 import MessageBar from "./components/message-bar";
 import TaskMessage from "./components/task-message";
+import TaskRiskAnalysis from "./components/task-risk/task-risk-analysis";
 
 const Task = () => {
   const { taskId } = useParams();
@@ -50,6 +51,9 @@ const Task = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [deleting, setDeleting] = useState(false);
   const [deletingAssignment, setDeletingAssignment] = useState(false);
+
+  const canViewTaskRisk =
+    employee.role === "OWNER" || employee.role === "MANAGER";
 
   const getTask = async () => {
     if (!taskId) return;
@@ -345,6 +349,13 @@ const Task = () => {
           <p className="opacity-70">Не призначено</p>
         )}
       </div>
+
+      {canViewTaskRisk &&
+        task.assignment &&
+        task.assignment.status !== "APPROVED" &&
+        task.assignment.status !== "CANCELLED" && (
+          <TaskRiskAnalysis projectId={project.id} taskId={task.id} />
+        )}
 
       {/* STATUS HISTORY */}
       {task.assignment && task.assignment?.statusUpdates?.length > 0 && (

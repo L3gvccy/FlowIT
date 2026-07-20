@@ -71,3 +71,7 @@ export const DELETE_ASSIGNMENT_URL = (assignmentId: string) =>
 
 export const FILES_URL = `${API_URL}/files`;
 export const UPLOAD_FILE_URL = `${FILES_URL}/upload`;
+
+export const TASK_RISK_URL = `${API_URL}/task-risk`;
+export const GET_TASK_RISK_URL = (projectId: string, taskId: string) =>
+  `${TASK_RISK_URL}/${projectId}/${taskId}`;
