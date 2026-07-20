@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { TriangleAlert } from "lucide-react";
+import type {
+  TaskRiskCandidateDto,
+  TaskRiskResponseDto,
+} from "@flowit/shared";
 import { apiClient } from "@/utils/api-client";
 import { GET_TASK_RISK_URL } from "@/utils/constants";
 import TaskRiskChart from "./task-risk-chart";
-import type { TaskRiskLevel, TaskRiskResponse } from "./task-risk.types";
 import TaskRiskBadge from "./task-risk-badge";
 
 interface TaskRiskAnalysisProps {
@@ -11,26 +14,8 @@ interface TaskRiskAnalysisProps {
   taskId: string;
 }
 
-const riskLevelConfig: Record<
-  TaskRiskLevel,
-  { label: string; className: string }
-> = {
-  LOW: {
-    label: "Низький ризик",
-    className: "bg-green-100 text-green-700",
-  },
-  MEDIUM: {
-    label: "Середній ризик",
-    className: "bg-amber-100 text-amber-700",
-  },
-  HIGH: {
-    label: "Високий ризик",
-    className: "bg-red-100 text-red-700",
-  },
-};
-
 const TaskRiskAnalysis = ({ projectId, taskId }: TaskRiskAnalysisProps) => {
-  const [risk, setRisk] = useState<TaskRiskResponse | null>(null);
+  const [risk, setRisk] = useState<TaskRiskCandidateDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -42,12 +27,12 @@ const TaskRiskAnalysis = ({ projectId, taskId }: TaskRiskAnalysisProps) => {
         setLoading(true);
         setError(false);
 
-        const response = await apiClient.get<TaskRiskResponse>(
+        const response = await apiClient.get<TaskRiskResponseDto>(
           GET_TASK_RISK_URL(projectId, taskId),
         );
 
         if (!ignore) {
-          setRisk(response.data);
+          setRisk(response.data.assignedRisk);
         }
       } catch (requestError) {
         console.error(requestError);
@@ -85,8 +70,6 @@ const TaskRiskAnalysis = ({ projectId, taskId }: TaskRiskAnalysisProps) => {
       </div>
     );
   }
-
-  const level = riskLevelConfig[risk.riskLevel];
 
   return (
     <section className="flex flex-col gap-4 border-b pb-4">
