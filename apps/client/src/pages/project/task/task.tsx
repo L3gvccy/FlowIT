@@ -40,6 +40,7 @@ import AssignmentUpdate from "./components/assignment-update";
 import MessageBar from "./components/message-bar";
 import TaskMessage from "./components/task-message";
 import TaskRiskAnalysis from "./components/task-risk/task-risk-analysis";
+import TaskCandidateRisks from "./components/task-risk/task-candidate-risks";
 
 const Task = () => {
   const { taskId } = useParams();
@@ -356,6 +357,10 @@ const Task = () => {
         task.assignment.status !== "CANCELLED" && (
           <TaskRiskAnalysis projectId={project.id} taskId={task.id} />
         )}
+
+      {canViewTaskRisk && !task.assignment && (
+        <TaskCandidateRisks projectId={project.id} taskId={task.id} />
+      )}
 
       {/* STATUS HISTORY */}
       {task.assignment && task.assignment?.statusUpdates?.length > 0 && (

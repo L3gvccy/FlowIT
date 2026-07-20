@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -12,6 +11,7 @@ import {
   TASK_RISK_WEIGHTS,
 } from "./task-risk.constants";
 import type {
+  TaskRiskCandidateDto,
   TaskRiskFactorDto,
   TaskRiskLevel,
   TaskRiskResponseDto,
@@ -77,98 +77,130 @@ export class TaskRiskService {
       throw new NotFoundException("Задача не знайдена");
     }
 
-    if (!task.assignment) {
-      throw new BadRequestException(
-        "Неможливо оцінити ризик задачі без призначеного виконавця",
-      );
-    }
-
-    const employee = task.assignment.employee;
     const requiredSkillIds = task.taskSkills.map(({ skillId }) => skillId);
-    const userSkillIds = employee.user.userSkills.map(({ skillId }) => skillId);
-    const matchedSkills = this.countMatchedSkills(
-      requiredSkillIds,
-      userSkillIds,
-    );
-
-    const skillMatch = requiredSkillIds.length
-      ? matchedSkills / requiredSkillIds.length
-      : 1;
-    const skillMismatch = 1 - skillMatch;
-
-    const overlappingAssignments = employee.assignments.filter(
-      (assignment) => assignment.task.deadline <= task.deadline,
-    );
-    const busyHours = overlappingAssignments.reduce(
-      (sum, assignment) =>
-        sum + this.estimateTaskHours(assignment.task.complexity),
-      0,
-    );
     const estimatedTaskHours = this.estimateTaskHours(task.complexity);
     const daysUntilDeadline = this.calculateDaysUntilDeadline(task.deadline);
     const availableHours =
       Math.max(daysUntilDeadline, 1) * TASK_RISK_CONFIG.workingHoursPerDay;
-    const workload = this.clamp(
-      (busyHours + estimatedTaskHours) / availableHours,
-    );
-
     const complexity = this.clamp((task.complexity - 1) / 4);
     const deadline = this.calculateDeadlineRisk(daysUntilDeadline);
-    const kpi = this.clamp(Number(employee.kpi) / 100);
-    const lowKpi = 1 - kpi;
 
-    const factors = this.createFactors({
-      workload,
-      skillMismatch,
-      complexity,
-      deadline,
-      lowKpi,
-    });
-    const riskScore =
-      workload * TASK_RISK_WEIGHTS.workload +
-      skillMismatch * TASK_RISK_WEIGHTS.skillMismatch +
-      complexity * TASK_RISK_WEIGHTS.complexity +
-      deadline * TASK_RISK_WEIGHTS.deadline +
-      lowKpi * TASK_RISK_WEIGHTS.lowKpi;
-    const roundedRiskScore = Number(riskScore.toFixed(4));
-
-    const assignedRisk: TaskRiskResponseDto["candidates"][number] = {
-      employeeId: employee.id,
-      userId: employee.userId,
-      fullName:
-        `${employee.user.name ?? ""} ${employee.user.surname ?? ""}`.trim() ||
-        employee.user.email,
-      email: employee.user.email,
-      role: employee.role,
-      kpi: Number(employee.kpi),
-      riskScore: roundedRiskScore,
-      riskValue: Math.round(roundedRiskScore * 100),
-      riskLevel: this.getRiskLevel(roundedRiskScore),
-      factors,
-      metrics: {
-        activeAssignments: overlappingAssignments.length,
-        busyHours,
-        availableHours,
-        daysUntilDeadline,
-        matchedSkills,
-        requiredSkills: requiredSkillIds.length,
-        kpi: Number(employee.kpi),
+    const employees = await this.prisma.employee.findMany({
+      where: {
+        projectId,
+        role: { in: ["MANAGER", "EMPLOYEE"] },
       },
-      reasons: this.createReasons({
-        workload,
-        skillMismatch,
-        complexity,
-        deadline,
-        lowKpi,
-      }),
-    };
+      include: {
+        user: {
+          include: {
+            userSkills: {
+              select: { skillId: true },
+            },
+          },
+        },
+        assignments: {
+          where: {
+            taskId: { not: taskId },
+            status: { in: ACTIVE_ASSIGNMENT_STATUSES },
+          },
+          include: {
+            task: {
+              select: {
+                complexity: true,
+                deadline: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const candidates: TaskRiskCandidateDto[] = employees
+      .map((employee) => {
+        const userSkillIds = employee.user.userSkills.map(
+          ({ skillId }) => skillId,
+        );
+        const matchedSkills = this.countMatchedSkills(
+          requiredSkillIds,
+          userSkillIds,
+        );
+        const skillMatch = requiredSkillIds.length
+          ? matchedSkills / requiredSkillIds.length
+          : 1;
+        const skillMismatch = 1 - skillMatch;
+        const overlappingAssignments = employee.assignments.filter(
+          (assignment) => assignment.task.deadline <= task.deadline,
+        );
+        const busyHours = overlappingAssignments.reduce(
+          (sum, assignment) =>
+            sum + this.estimateTaskHours(assignment.task.complexity),
+          0,
+        );
+        const workload = this.clamp(
+          (busyHours + estimatedTaskHours) / availableHours,
+        );
+        const kpi = this.clamp(Number(employee.kpi) / 100);
+        const lowKpi = 1 - kpi;
+        const factors = this.createFactors({
+          workload,
+          skillMismatch,
+          complexity,
+          deadline,
+          lowKpi,
+        });
+        const riskScore =
+          workload * TASK_RISK_WEIGHTS.workload +
+          skillMismatch * TASK_RISK_WEIGHTS.skillMismatch +
+          complexity * TASK_RISK_WEIGHTS.complexity +
+          deadline * TASK_RISK_WEIGHTS.deadline +
+          lowKpi * TASK_RISK_WEIGHTS.lowKpi;
+        const roundedRiskScore = Number(riskScore.toFixed(4));
+
+        return {
+          employeeId: employee.id,
+          userId: employee.userId,
+          fullName:
+            `${employee.user.name ?? ""} ${employee.user.surname ?? ""}`.trim() ||
+            employee.user.email,
+          email: employee.user.email,
+          role: employee.role,
+          kpi: Number(employee.kpi),
+          riskScore: roundedRiskScore,
+          riskValue: Math.round(roundedRiskScore * 100),
+          riskLevel: this.getRiskLevel(roundedRiskScore),
+          factors,
+          metrics: {
+            activeAssignments: overlappingAssignments.length,
+            busyHours,
+            availableHours,
+            daysUntilDeadline,
+            matchedSkills,
+            requiredSkills: requiredSkillIds.length,
+            kpi: Number(employee.kpi),
+          },
+          reasons: this.createReasons({
+            workload,
+            skillMismatch,
+            complexity,
+            deadline,
+            lowKpi,
+          }),
+        };
+      })
+      .sort((a, b) => a.riskScore - b.riskScore);
+
+    const assignedEmployeeId = task.assignment?.employee.id ?? null;
+    const assignedRisk =
+      candidates.find(
+        (candidate) => candidate.employeeId === assignedEmployeeId,
+      ) ?? null;
 
     return {
       taskId: task.id,
       taskTitle: task.title,
-      assignedEmployeeId: employee.id,
+      assignedEmployeeId,
       assignedRisk,
-      candidates: [assignedRisk],
+      candidates,
     };
   }
 
