@@ -11,7 +11,7 @@ import {
   TASK_RISK_THRESHOLDS,
   TASK_RISK_WEIGHTS,
 } from "./task-risk.constants";
-import {
+import type {
   TaskRiskFactorDto,
   TaskRiskLevel,
   TaskRiskResponseDto,
@@ -132,9 +132,15 @@ export class TaskRiskService {
       lowKpi * TASK_RISK_WEIGHTS.lowKpi;
     const roundedRiskScore = Number(riskScore.toFixed(4));
 
-    return {
-      taskId: task.id,
+    const assignedRisk: TaskRiskResponseDto["candidates"][number] = {
       employeeId: employee.id,
+      userId: employee.userId,
+      fullName:
+        `${employee.user.name ?? ""} ${employee.user.surname ?? ""}`.trim() ||
+        employee.user.email,
+      email: employee.user.email,
+      role: employee.role,
+      kpi: Number(employee.kpi),
       riskScore: roundedRiskScore,
       riskValue: Math.round(roundedRiskScore * 100),
       riskLevel: this.getRiskLevel(roundedRiskScore),
@@ -155,6 +161,14 @@ export class TaskRiskService {
         deadline,
         lowKpi,
       }),
+    };
+
+    return {
+      taskId: task.id,
+      taskTitle: task.title,
+      assignedEmployeeId: employee.id,
+      assignedRisk,
+      candidates: [assignedRisk],
     };
   }
 
@@ -243,13 +257,9 @@ export class TaskRiskService {
   }
 
   private getRiskLevel(riskScore: number): TaskRiskLevel {
-    if (riskScore >= TASK_RISK_THRESHOLDS.high) {
-      return TaskRiskLevel.HIGH;
-    }
-    if (riskScore >= TASK_RISK_THRESHOLDS.medium) {
-      return TaskRiskLevel.MEDIUM;
-    }
-    return TaskRiskLevel.LOW;
+    if (riskScore >= TASK_RISK_THRESHOLDS.high) return "HIGH";
+    if (riskScore >= TASK_RISK_THRESHOLDS.medium) return "MEDIUM";
+    return "LOW";
   }
 
   private countMatchedSkills(
