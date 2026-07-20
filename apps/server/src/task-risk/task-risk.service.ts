@@ -11,7 +11,7 @@ import {
   TASK_RISK_THRESHOLDS,
   TASK_RISK_WEIGHTS,
 } from "./task-risk.constants";
-import type {
+import {
   TaskRiskFactorDto,
   TaskRiskLevel,
   TaskRiskResponseDto,
@@ -244,12 +244,12 @@ export class TaskRiskService {
 
   private getRiskLevel(riskScore: number): TaskRiskLevel {
     if (riskScore >= TASK_RISK_THRESHOLDS.high) {
-      return "HIGH";
+      return TaskRiskLevel.HIGH;
     }
     if (riskScore >= TASK_RISK_THRESHOLDS.medium) {
-      return "MEDIUM";
+      return TaskRiskLevel.MEDIUM;
     }
-    return "LOW";
+    return TaskRiskLevel.LOW;
   }
 
   private countMatchedSkills(

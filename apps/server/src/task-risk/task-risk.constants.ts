@@ -1,4 +1,4 @@
-import { AssignmentStatus } from "src/generated/prisma/enums";
+import { AssignmentStatus } from "../generated/prisma/enums";
 
 export const TASK_RISK_WEIGHTS = {
   workload: 0.25,

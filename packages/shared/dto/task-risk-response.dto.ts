@@ -1,3 +1,5 @@
+import type { employeeRole } from "../types/employee-role";
+
 export type TaskRiskLevel = "LOW" | "MEDIUM" | "HIGH";
 
 export interface TaskRiskFactorDto {
@@ -18,13 +20,25 @@ export interface TaskRiskMetricsDto {
   kpi: number;
 }
 
-export interface TaskRiskResponseDto {
-  taskId: string;
+export interface TaskRiskCandidateDto {
   employeeId: string;
+  userId: string;
+  fullName: string;
+  email: string;
+  role: employeeRole;
+  kpi: number;
   riskScore: number;
   riskValue: number;
   riskLevel: TaskRiskLevel;
   factors: TaskRiskFactorDto[];
   metrics: TaskRiskMetricsDto;
   reasons: string[];
+}
+
+export interface TaskRiskResponseDto {
+  taskId: string;
+  taskTitle: string;
+  assignedEmployeeId: string | null;
+  assignedRisk: TaskRiskCandidateDto | null;
+  candidates: TaskRiskCandidateDto[];
 }

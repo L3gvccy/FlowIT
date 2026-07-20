@@ -29,6 +29,7 @@ import type {
   ITaskCandidatesResponse,
 } from "@flowit/shared";
 import { BookCheck } from "lucide-react";
+import { isAxiosError } from "axios";
 
 interface AssignTaskDialogProps {
   taskId: string;
@@ -45,28 +46,40 @@ const AssignTaskDialog = ({ taskId, onAssigned }: AssignTaskDialogProps) => {
   const [selectedCandidate, setSelectedCandidate] =
     useState<ITaskCandidate | null>(null);
 
-  const fetchCandidates = async () => {
-    try {
-      setLoading(true);
-
-      const res = await apiClient.get<ITaskCandidatesResponse>(
-        GET_TASK_CANDIDATES_URL(taskId),
-        { withCredentials: true },
-      );
-
-      setCandidates(res.data.candidates);
-    } catch (error) {
-      toast.error("Не вдалося отримати список кандидатів");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    if (open) {
-      fetchCandidates();
-    }
-  }, [open]);
+    if (!open) return;
+
+    let ignore = false;
+
+    const fetchCandidates = async () => {
+      try {
+        setLoading(true);
+
+        const candidatesResponse = await apiClient.get<ITaskCandidatesResponse>(
+          GET_TASK_CANDIDATES_URL(taskId),
+        );
+
+        if (ignore) return;
+
+        setCandidates(candidatesResponse.data.candidates);
+      } catch (error) {
+        console.error(error);
+        if (!ignore) {
+          toast.error("Не вдалося отримати список кандидатів");
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchCandidates();
+
+    return () => {
+      ignore = true;
+    };
+  }, [open, taskId]);
 
   const handleSelectCandidate = (candidate: ITaskCandidate) => {
     setSelectedCandidate(candidate);
@@ -92,9 +105,11 @@ const AssignTaskDialog = ({ taskId, onAssigned }: AssignTaskDialogProps) => {
       setSelectedCandidate(null);
 
       onAssigned?.(res.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(
-        error?.response?.data?.message || "Не вдалося призначити виконавця",
+        (isAxiosError<{ message?: string }>(error) &&
+          error.response?.data?.message) ||
+          "Не вдалося призначити виконавця",
       );
     } finally {
       setAssigning(false);
@@ -151,79 +166,81 @@ const AssignTaskDialog = ({ taskId, onAssigned }: AssignTaskDialogProps) => {
                   </thead>
 
                   <tbody>
-                    {candidates.map((candidate, index) => (
-                      <tr
-                        key={candidate.employeeId}
-                        className="border-b last:border-b-0 hover:bg-violet-50/40 transition-colors"
-                      >
-                        <td className="px-4 py-3 align-top">
-                          <div className="font-medium">
-                            <span className="text-violet-600">
-                              {index + 1}.
-                            </span>{" "}
-                            {candidate.fullName}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {candidate.email}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            Роль: {candidate.role}
-                          </div>
-                        </td>
+                    {candidates.map((candidate, index) => {
+                      return (
+                        <tr
+                          key={candidate.employeeId}
+                          className="border-b last:border-b-0 hover:bg-violet-50/40 transition-colors"
+                        >
+                          <td className="px-4 py-3 align-top">
+                            <div className="font-medium">
+                              <span className="text-violet-600">
+                                {index + 1}.
+                              </span>{" "}
+                              {candidate.fullName}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {candidate.email}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              Роль: {candidate.role}
+                            </div>
+                          </td>
 
-                        <td className="px-4 py-3 align-top">
-                          <div className="font-semibold text-violet-600">
-                            {candidate.score.toFixed(4)}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            LF: {candidate.loadFactor.toFixed(2)}
-                          </div>
-                        </td>
+                          <td className="px-4 py-3 align-top">
+                            <div className="font-semibold text-violet-600">
+                              {candidate.score.toFixed(4)}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              LF: {candidate.loadFactor.toFixed(2)}
+                            </div>
+                          </td>
 
-                        <td className="px-4 py-3 align-top">
-                          <div>
-                            {candidate.matchedSkillsCount}/
-                            {candidate.totalRequiredSkillsCount}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {candidate.skillMatch.toFixed(2)}
-                          </div>
-                        </td>
+                          <td className="px-4 py-3 align-top">
+                            <div>
+                              {candidate.matchedSkillsCount}/
+                              {candidate.totalRequiredSkillsCount}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {candidate.skillMatch.toFixed(2)}
+                            </div>
+                          </td>
 
-                        <td className="px-4 py-3 align-top">
-                          <div>
-                            {candidate.completedSimilarTasks}/
-                            {candidate.maxCompletedTasks}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {candidate.experienceScore.toFixed(2)}
-                          </div>
-                        </td>
+                          <td className="px-4 py-3 align-top">
+                            <div>
+                              {candidate.completedSimilarTasks}/
+                              {candidate.maxCompletedTasks}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {candidate.experienceScore.toFixed(2)}
+                            </div>
+                          </td>
 
-                        <td className="px-4 py-3 align-top">
-                          <div>{candidate.kpi}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {candidate.performanceScore.toFixed(2)}
-                          </div>
-                        </td>
+                          <td className="px-4 py-3 align-top">
+                            <div>{candidate.kpi}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {candidate.performanceScore.toFixed(2)}
+                            </div>
+                          </td>
 
-                        <td className="px-4 py-3 align-top">
-                          <div>{candidate.penalty.toFixed(4)}</div>
-                          <div className="text-xs text-muted-foreground">
-                            Busy: {candidate.busyTimeWindow}h
-                          </div>
-                        </td>
+                          <td className="px-4 py-3 align-top">
+                            <div>{candidate.penalty.toFixed(4)}</div>
+                            <div className="text-xs text-muted-foreground">
+                              Busy: {candidate.busyTimeWindow}h
+                            </div>
+                          </td>
 
-                        <td className="px-4 py-3 align-top text-right">
-                          <Button
-                            onClick={() => handleSelectCandidate(candidate)}
-                            className="bg-violet-600 hover:bg-violet-500 text-white transition-all duration-300 cursor-pointer"
-                          >
-                            Обрати
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
+                          <td className="px-4 py-3 align-top text-right">
+                            <Button
+                              onClick={() => handleSelectCandidate(candidate)}
+                              className="bg-violet-600 hover:bg-violet-500 text-white transition-all duration-300 cursor-pointer"
+                            >
+                              Обрати
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               )}
