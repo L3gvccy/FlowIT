@@ -4,6 +4,7 @@ import { apiClient } from "@/utils/api-client";
 import { GET_TASK_RISK_URL } from "@/utils/constants";
 import TaskRiskChart from "./task-risk-chart";
 import type { TaskRiskLevel, TaskRiskResponse } from "./task-risk.types";
+import TaskRiskBadge from "./task-risk-badge";
 
 interface TaskRiskAnalysisProps {
   projectId: string;
@@ -70,7 +71,7 @@ const TaskRiskAnalysis = ({ projectId, taskId }: TaskRiskAnalysisProps) => {
   if (loading)
     return (
       <div className="w-full rounded-xl shadow-md p-4">
-        <p className="text-center font-semibold">Завантаження...</p>
+        <p className="text-center font-semibold">Завдання не знайдено</p>
       </div>
     );
 
@@ -100,11 +101,7 @@ const TaskRiskAnalysis = ({ projectId, taskId }: TaskRiskAnalysisProps) => {
           </div>
         </div>
 
-        <div
-          className={`rounded-full px-3 py-1.5 text-sm font-semibold ${level.className}`}
-        >
-          {level.label} · {risk.riskValue}/100
-        </div>
+        <TaskRiskBadge level={risk.riskLevel} value={risk.riskValue} />
       </div>
 
       <TaskRiskChart factors={risk.factors} />
